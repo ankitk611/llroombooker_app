@@ -1,16 +1,14 @@
-
 part of 'values.dart';
 
 class Styles {
 
-
-  static TextStyle customTextStyle({
-    Color color = AppColors.blackShade3,
+  static TextStyle greySubtitleTextStyle({
+    Color color = const Color.fromARGB(255, 96, 96, 97),
     FontWeight fontWeight = FontWeight.w600,
-    double fontSize = Sizes.TEXT_SIZE_14,
+    required double fontSize,
     FontStyle fontStyle= FontStyle.normal,
   }) {
-    return GoogleFonts.roboto(
+    return GoogleFonts.poppins(
       fontSize: fontSize,
       color: color,
       fontWeight: fontWeight,
@@ -18,17 +16,59 @@ class Styles {
     );
   }
 
-  static TextStyle customTextStyle2({
-    Color color = AppColors.blackShade7,
-    FontWeight fontWeight = FontWeight.w600,
-    double fontSize = Sizes.TEXT_SIZE_16,
+  static TextStyle greySubtitleTextStyle2({
+    Color color = const Color.fromARGB(255, 96, 96, 97),
+    FontWeight fontWeight = FontWeight.w500,
+    required double fontSize,
     FontStyle fontStyle= FontStyle.normal,
   }) {
-    return GoogleFonts.comfortaa(
+    return GoogleFonts.poppins(
       fontSize: fontSize,
       color: color,
       fontWeight: fontWeight,
       fontStyle: fontStyle,
     );
   }
+
+  static TextStyle blackTitleTextStyle({
+    Color color = const Color.fromARGB(255, 10, 10, 10),
+    FontWeight fontWeight = FontWeight.w800,
+    required double fontSize,
+    FontStyle fontStyle= FontStyle.normal,
+  }) {
+    return GoogleFonts.poppins(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+    );
+  }
+
+  static TextStyle blueTitleTextStyle({
+    Color color = const Color.fromARGB(255, 0, 2, 97),
+    FontWeight fontWeight = FontWeight.w700,
+    required double fontSize,
+    FontStyle fontStyle= FontStyle.normal,
+  }) {
+    return GoogleFonts.poppins(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+    );
+  }
+  static TextStyle whiteSubtitleTextStyle({
+    Color color = const Color.fromARGB(255, 255, 255, 255),
+    FontWeight fontWeight = FontWeight.w600,
+    required double fontSize,
+    FontStyle fontStyle= FontStyle.normal,
+  }) {
+    return GoogleFonts.poppins(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+    );
+  }
+  
 }
