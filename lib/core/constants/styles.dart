@@ -57,6 +57,19 @@ class Styles {
       fontStyle: fontStyle,
     );
   }
+  static TextStyle whiteTitleTextStyle({
+    Color color = const Color.fromARGB(255, 252, 252, 252),
+    FontWeight fontWeight = FontWeight.w700,
+    required double fontSize,
+    FontStyle fontStyle= FontStyle.normal,
+  }) {
+    return GoogleFonts.poppins(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+    );
+  }
   static TextStyle whiteSubtitleTextStyle({
     Color color = const Color.fromARGB(255, 255, 255, 255),
     FontWeight fontWeight = FontWeight.w600,
