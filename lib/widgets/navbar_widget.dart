@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roombooker/views/pages/all_bookings_page.dart';
 import 'package:roombooker/views/pages/create_booking_page.dart';
 import 'package:roombooker/views/pages/dashboard_page.dart';
+import 'package:roombooker/core/methods/navigation_method.dart';
 
 
 class AppBottomNavbar extends StatelessWidget {
@@ -13,40 +14,7 @@ class AppBottomNavbar extends StatelessWidget {
     required this.currentIndex,
   });
 
-  void _onItemTapped(BuildContext context, int index) {
-  if (index == currentIndex) return;
-
-  Widget page;
-  switch (index) {
-    case 0:
-      page = DashboardPage();
-
-      // 🔥 Clear entire stack & go to Dashboard
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => page),
-        (route) => false,
-      );
-      return;
-
-    case 1:
-      page = CreateBookingPage();
-      break;
-
-    case 2:
-      page = AllBookings();
-      break;
-
-    default:
-      return;
-  }
-
-  // Normal navigation for non-dashboard pages
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => page),
-  );
-}
+  
 
 
   @override
@@ -82,7 +50,7 @@ class AppBottomNavbar extends StatelessWidget {
 
             // 🔵 Center Add Button
             GestureDetector(
-              onTap: () => _onItemTapped(context, 1),
+              onTap: () => NavigationUtils.onItemTapped(context, 1, currentIndex),
               child: Container(
                 width: 45,
                 height: 45,
@@ -126,7 +94,7 @@ class AppBottomNavbar extends StatelessWidget {
     final bool isSelected = index == currentIndex;
 
     return GestureDetector(
-      onTap: () => _onItemTapped(context, index),
+      onTap: () => NavigationUtils.onItemTapped(context, index, currentIndex),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

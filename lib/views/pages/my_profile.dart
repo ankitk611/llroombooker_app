@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:roombooker/core/constants/values.dart';
+import 'package:roombooker/widgets/app_drawer.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -44,6 +45,7 @@ class ProfilePage extends StatelessWidget {
           ),
           centerTitle: false,
         ),
+        drawer: const AppDrawer(currentIndex: 4),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -83,7 +85,6 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const AppBottomNavbar(currentIndex: 2),
     );
   }
 
@@ -155,6 +156,7 @@ class ProfilePage extends StatelessWidget {
                   child: _headerButton(
                     icon: Icons.key,
                     label: "Change Password",
+                    
                     onTap: () {},
                   ),
                 ),
@@ -260,6 +262,7 @@ class ProfilePage extends StatelessWidget {
 
   Widget _headerButton({
     required IconData icon,
+    
     required String label,
     required VoidCallback onTap,
   }) {
