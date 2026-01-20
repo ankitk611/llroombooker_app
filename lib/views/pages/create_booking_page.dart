@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roombooker/widgets/app_drawer.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
 
 import '../../core/constants/create_booking_design.dart';
@@ -440,6 +441,7 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
           ),
           centerTitle: false,
         ),
+        drawer: const AppDrawer(currentIndex: 1),
         body: _loadingRooms
             ? const Center(child: CircularProgressIndicator())
             : SafeArea(

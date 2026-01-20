@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooker/core/constants/values.dart';
 import 'package:roombooker/core/models/booking.dart';
+import 'package:roombooker/widgets/app_drawer.dart';
 import 'package:roombooker/widgets/bookingcard_widget.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -102,6 +103,7 @@ class _AllBookingsState extends State<AllBookings> {
         ),
         centerTitle: false,
       ),
+      drawer: const AppDrawer(currentIndex: 2),
       body: Column(
         children: [
           Padding(
