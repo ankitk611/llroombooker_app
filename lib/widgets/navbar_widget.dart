@@ -14,28 +14,40 @@ class AppBottomNavbar extends StatelessWidget {
   });
 
   void _onItemTapped(BuildContext context, int index) {
-    if (index == currentIndex) return;
+  if (index == currentIndex) return;
 
-    Widget page;
-    switch (index) {
-      case 0:
-        page = DashboardPage();
-        break;
-      case 1:
-        page = CreateBookingPage();
-        break;
-      case 2:
-        page = AllBookings();
-        break;
-      default:
-        return;
-    }
+  Widget page;
+  switch (index) {
+    case 0:
+      page = DashboardPage();
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => page),
-    );
+      // 🔥 Clear entire stack & go to Dashboard
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => page),
+        (route) => false,
+      );
+      return;
+
+    case 1:
+      page = CreateBookingPage();
+      break;
+
+    case 2:
+      page = AllBookings();
+      break;
+
+    default:
+      return;
   }
+
+  // Normal navigation for non-dashboard pages
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => page),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
