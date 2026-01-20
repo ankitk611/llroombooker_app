@@ -7,6 +7,8 @@ import 'package:roombooker/widgets/bookingcard_widget.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
 import 'package:roombooker/widgets/stat_item.dart';
 import 'package:roombooker/widgets/appbar_widget.dart';
+import 'package:roombooker/views/pages/my_profile.dart';
+
 
 
 
@@ -131,7 +133,9 @@ late final List<BookingDb> allBookings = [
         },
         onProfilePressed: () {
           // Handle profile
-          print("Profile pressed");
+         Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage(),
+         ),
+         );
         },
       ),
       body: SingleChildScrollView(
