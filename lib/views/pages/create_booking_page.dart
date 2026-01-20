@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roombooker/widgets/navbar_widget.dart';
 
 import '../../core/constants/create_booking_design.dart';
 import '../../core/methods/create_booking_service.dart';
@@ -138,7 +139,8 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
   }
 
   Future<void> _pickStartTime() async {
-    final picked = await showTimePicker(context: context, initialTime: _startTime);
+    final picked =
+        await showTimePicker(context: context, initialTime: _startTime);
     if (picked == null) return;
 
     setState(() {
@@ -205,7 +207,8 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                         ),
                         title: Text(
                           r.name,
-                          style: DS.text.primary.copyWith(fontWeight: FontWeight.w500),
+                          style: DS.text.primary
+                              .copyWith(fontWeight: FontWeight.w500),
                           overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: Text(
@@ -258,7 +261,8 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                 decoration: DS.input(
                   label: 'Name *',
                   hint: 'Enter attendee name',
-                  prefixIcon: const FaIcon(FontAwesomeIcons.user, size: 14, color: DS.primary),
+                  prefixIcon: const FaIcon(FontAwesomeIcons.user,
+                      size: 14, color: DS.primary),
                 ),
               ),
               const SizedBox(height: DS.m),
@@ -269,7 +273,8 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                 decoration: DS.input(
                   label: 'Email (optional)',
                   hint: 'Enter email',
-                  prefixIcon: const FaIcon(FontAwesomeIcons.envelope, size: 14, color: DS.primary),
+                  prefixIcon: const FaIcon(FontAwesomeIcons.envelope,
+                      size: 14, color: DS.primary),
                 ),
               ),
               const SizedBox(height: DS.l),
@@ -286,11 +291,16 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                       return;
                     }
                     Navigator.of(context).pop(
-                      Attendee.external(name: name, email: email.isEmpty ? null : email),
+                      Attendee.external(
+                        name: name,
+                        email: email.isEmpty ? null : email,
+                      ),
                     );
                   },
                   icon: const FaIcon(FontAwesomeIcons.userPlus, size: 14),
-                  label: Text('Add', style: DS.text.primary.copyWith(color: Colors.white)),
+                  label: Text('Add',
+                      style:
+                          DS.text.primary.copyWith(color: Colors.white)),
                   style: DS.primaryButton,
                 ),
               ),
@@ -351,6 +361,7 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Page-scoped theme enforcing Poppins + your palette (no pure black)
     final pageTheme = Theme.of(context).copyWith(
       scaffoldBackgroundColor: DS.background,
       textTheme: GoogleFonts.poppinsTextTheme().apply(
@@ -405,31 +416,6 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
           ),
           centerTitle: false,
         ),
-        bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(DS.xl, DS.m, DS.xl, DS.l),
-            child: SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                onPressed: _submitting ? null : _onSubmit,
-                style: DS.primaryButton,
-                child: _submitting
-                    ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : Text(
-                        'Create Booking',
-                        style: DS.text.primary.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              ),
-            ),
-          ),
-        ),
         body: _loadingRooms
             ? const Center(child: CircularProgressIndicator())
             : SafeArea(
@@ -440,9 +426,11 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                     children: [
                       const SizedBox(height: DS.xl),
 
+                      // Booking Details
                       DSCard(
                         title: 'Booking Details',
-                        icon: const FaIcon(FontAwesomeIcons.clipboardList, size: 14, color: DS.primary),
+                        icon: const FaIcon(FontAwesomeIcons.clipboardList,
+                            size: 14, color: DS.primary),
                         child: Column(
                           children: [
                             TextFormField(
@@ -451,11 +439,15 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                               decoration: DS.input(
                                 label: 'Meeting Title *',
                                 hint: 'e.g., Weekly Team Meeting',
-                                prefixIcon: const FaIcon(FontAwesomeIcons.penToSquare, size: 14, color: DS.primary),
+                                prefixIcon: const FaIcon(
+                                    FontAwesomeIcons.penToSquare,
+                                    size: 14,
+                                    color: DS.primary),
                               ),
-                              validator: (v) => (v == null || v.trim().isEmpty)
-                                  ? 'Meeting title is required.'
-                                  : null,
+                              validator: (v) =>
+                                  (v == null || v.trim().isEmpty)
+                                      ? 'Meeting title is required.'
+                                      : null,
                             ),
                             const SizedBox(height: DS.l),
 
@@ -464,7 +456,10 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                               value: _selectedRoom == null
                                   ? 'Select a room...'
                                   : '${_selectedRoom!.name} • ${_selectedRoom!.capacity}',
-                              prefixIcon: const FaIcon(FontAwesomeIcons.doorOpen, size: 14, color: DS.primary),
+                              prefixIcon: const FaIcon(
+                                  FontAwesomeIcons.doorOpen,
+                                  size: 14,
+                                  color: DS.primary),
                               onTap: _openRoomPicker,
                             ),
                             const SizedBox(height: DS.l),
@@ -475,7 +470,10 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                                   child: TapField(
                                     label: 'Date *',
                                     value: _ddMMyyyy(_selectedDate),
-                                    prefixIcon: const FaIcon(FontAwesomeIcons.calendarDays, size: 14, color: DS.primary),
+                                    prefixIcon: const FaIcon(
+                                        FontAwesomeIcons.calendarDays,
+                                        size: 14,
+                                        color: DS.primary),
                                     onTap: _pickDate,
                                   ),
                                 ),
@@ -488,11 +486,17 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                                     decoration: DS.input(
                                       label: 'Attendees *',
                                       hint: '0',
-                                      prefixIcon: const FaIcon(FontAwesomeIcons.users, size: 14, color: DS.success),
+                                      prefixIcon: const FaIcon(
+                                          FontAwesomeIcons.users,
+                                          size: 14,
+                                          color: DS.success),
                                     ),
                                     validator: (v) {
-                                      final n = int.tryParse((v ?? '').trim());
-                                      if (n == null || n < 0) return 'Invalid number';
+                                      final n =
+                                          int.tryParse((v ?? '').trim());
+                                      if (n == null || n < 0) {
+                                        return 'Invalid number';
+                                      }
                                       return null;
                                     },
                                   ),
@@ -507,7 +511,10 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                                   child: TapField(
                                     label: 'Start Time *',
                                     value: _startTime.format(context),
-                                    prefixIcon: const FaIcon(FontAwesomeIcons.clock, size: 14, color: DS.primary),
+                                    prefixIcon: const FaIcon(
+                                        FontAwesomeIcons.clock,
+                                        size: 14,
+                                        color: DS.primary),
                                     onTap: _pickStartTime,
                                   ),
                                 ),
@@ -516,7 +523,10 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                                   child: TapField(
                                     label: 'End Time *',
                                     value: _endTime.format(context),
-                                    prefixIcon: const FaIcon(FontAwesomeIcons.clockRotateLeft, size: 14, color: DS.primary),
+                                    prefixIcon: const FaIcon(
+                                        FontAwesomeIcons.clockRotateLeft,
+                                        size: 14,
+                                        color: DS.primary),
                                     onTap: _pickEndTime,
                                   ),
                                 ),
@@ -527,7 +537,8 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: DS.m, vertical: DS.s),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: DS.m, vertical: DS.s),
                                 decoration: BoxDecoration(
                                   color: DS.primaryLight,
                                   borderRadius: BorderRadius.circular(999),
@@ -535,7 +546,8 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                                 ),
                                 child: Text(
                                   'Duration: $_durationLabel',
-                                  style: DS.text.secondary.copyWith(fontWeight: FontWeight.w500),
+                                  style: DS.text.secondary
+                                      .copyWith(fontWeight: FontWeight.w500),
                                 ),
                               ),
                             ),
@@ -545,13 +557,16 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
 
                       const SizedBox(height: DS.xl),
 
+                      // Attendees
                       DSCard(
                         title: 'Attendees',
-                        icon: const FaIcon(FontAwesomeIcons.peopleGroup, size: 14, color: DS.success),
+                        icon: const FaIcon(FontAwesomeIcons.peopleGroup,
+                            size: 14, color: DS.success),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Internal (Microsoft 365)', style: DS.text.cardTitle),
+                            Text('Internal (Microsoft 365)',
+                                style: DS.text.cardTitle),
                             const SizedBox(height: DS.m),
 
                             TextField(
@@ -560,19 +575,27 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                               decoration: DS.input(
                                 label: 'Search',
                                 hint: 'Search by name or email...',
-                                prefixIcon: const FaIcon(FontAwesomeIcons.magnifyingGlass, size: 14, color: DS.primary),
+                                prefixIcon: const FaIcon(
+                                    FontAwesomeIcons.magnifyingGlass,
+                                    size: 14,
+                                    color: DS.primary),
                                 suffixIcon: _searchingInternal
                                     ? const Padding(
                                         padding: EdgeInsets.all(12),
                                         child: SizedBox(
                                           width: 16,
                                           height: 16,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
                                         ),
                                       )
                                     : IconButton(
-                                        icon: const FaIcon(FontAwesomeIcons.arrowRight, size: 14, color: DS.primary),
-                                        onPressed: () => _runInternalSearch(_internalSearchCtrl.text),
+                                        icon: const FaIcon(
+                                            FontAwesomeIcons.arrowRight,
+                                            size: 14,
+                                            color: DS.primary),
+                                        onPressed: () => _runInternalSearch(
+                                            _internalSearchCtrl.text),
                                       ),
                               ),
                               onChanged: (v) => _runInternalSearch(v),
@@ -588,24 +611,37 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                                 ),
                                 child: ListView.separated(
                                   shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
+                                  physics:
+                                      const NeverScrollableScrollPhysics(),
                                   itemCount: _internalSuggestions.length,
                                   separatorBuilder: (_, __) =>
-                                      const Divider(height: 1, color: DS.border),
+                                      const Divider(
+                                          height: 1, color: DS.border),
                                   itemBuilder: (context, i) {
                                     final a = _internalSuggestions[i];
                                     return ListTile(
                                       dense: true,
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: DS.m,
-                                        vertical: DS.xs,
-                                      ),
-                                      leading: const FaIcon(FontAwesomeIcons.user, size: 14, color: DS.primary),
-                                      title: Text(a.name, style: DS.text.primary, overflow: TextOverflow.ellipsis),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: DS.m,
+                                              vertical: DS.xs),
+                                      leading: const FaIcon(
+                                          FontAwesomeIcons.user,
+                                          size: 14,
+                                          color: DS.primary),
+                                      title: Text(a.name,
+                                          style: DS.text.primary,
+                                          overflow: TextOverflow.ellipsis),
                                       subtitle: a.email == null
                                           ? null
-                                          : Text(a.email!, style: DS.text.secondary, overflow: TextOverflow.ellipsis),
-                                      trailing: const FaIcon(FontAwesomeIcons.circlePlus, size: 16, color: DS.success),
+                                          : Text(a.email!,
+                                              style: DS.text.secondary,
+                                              overflow:
+                                                  TextOverflow.ellipsis),
+                                      trailing: const FaIcon(
+                                          FontAwesomeIcons.circlePlus,
+                                          size: 16,
+                                          color: DS.success),
                                       onTap: () {
                                         _addAttendee(a);
                                         _internalSearchCtrl.clear();
@@ -620,11 +656,19 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
 
                             Row(
                               children: [
-                                Expanded(child: Text('External attendees', style: DS.text.cardTitle)),
+                                Expanded(
+                                    child: Text('External attendees',
+                                        style: DS.text.cardTitle)),
                                 TextButton.icon(
-                                  onPressed: _openAddExternalAttendeeSheet,
-                                  icon: const FaIcon(FontAwesomeIcons.userPlus, size: 14, color: DS.primary),
-                                  label: Text('Add', style: DS.text.primary.copyWith(color: DS.primary)),
+                                  onPressed:
+                                      _openAddExternalAttendeeSheet,
+                                  icon: const FaIcon(
+                                      FontAwesomeIcons.userPlus,
+                                      size: 14,
+                                      color: DS.primary),
+                                  label: Text('Add',
+                                      style: DS.text.primary
+                                          .copyWith(color: DS.primary)),
                                 ),
                               ],
                             ),
@@ -633,9 +677,12 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
 
                             Row(
                               children: [
-                                Text('Selected', style: DS.text.primary.copyWith(fontWeight: FontWeight.w600)),
+                                Text('Selected',
+                                    style: DS.text.primary.copyWith(
+                                        fontWeight: FontWeight.w600)),
                                 const SizedBox(width: DS.s),
-                                CountPill(count: _selectedAttendees.length),
+                                CountPill(
+                                    count: _selectedAttendees.length),
                               ],
                             ),
                             const SizedBox(height: DS.m),
@@ -643,7 +690,8 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                             if (_selectedAttendees.isEmpty)
                               const EmptyState(
                                 title: 'No attendees added',
-                                subtitle: 'Search internal or add external attendees',
+                                subtitle:
+                                    'Search internal or add external attendees',
                               )
                             else
                               Wrap(
@@ -662,24 +710,58 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
 
                       const SizedBox(height: DS.xl),
 
+                      // Description
                       DSCard(
                         title: 'Meeting Description',
-                        icon: const FaIcon(FontAwesomeIcons.alignLeft, size: 14, color: DS.primary),
+                        icon: const FaIcon(FontAwesomeIcons.alignLeft,
+                            size: 14, color: DS.primary),
                         child: TextFormField(
                           controller: _descriptionCtrl,
                           style: DS.text.primary,
                           maxLines: 4,
                           decoration: DS.input(
                             label: 'Description',
-                            hint: 'Describe agenda or any special requirements...',
-                            prefixIcon: const FaIcon(FontAwesomeIcons.noteSticky, size: 14, color: DS.primary),
+                            hint:
+                                'Describe agenda or any special requirements...',
+                            prefixIcon: const FaIcon(
+                                FontAwesomeIcons.noteSticky,
+                                size: 14,
+                                color: DS.primary),
                           ),
                         ),
                       ),
+
+                      const SizedBox(height: DS.xl),
+
+                      // Submit button INSIDE body
+                      SizedBox(
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: _submitting ? null : _onSubmit,
+                          style: DS.primaryButton,
+                          child: _submitting
+                              ? const SizedBox(
+                                  height: 18,
+                                  width: 18,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: Colors.white),
+                                )
+                              : Text(
+                                  'Create Booking',
+                                  style: DS.text.primary.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                        ),
+                      ),
+
+                      const SizedBox(height: DS.xl),
                     ],
                   ),
                 ),
               ),
+              bottomNavigationBar: AppBottomNavbar(currentIndex: 1),
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:roombooker/core/constants/values.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roombooker/core/models/booking_db.dart';
 import 'package:roombooker/views/pages/create_booking_page.dart';
