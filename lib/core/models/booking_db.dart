@@ -1,0 +1,24 @@
+enum BookingFilter { today, tomorrow, custom, all }
+
+
+class BookingDb {
+  final String title;
+  final String room;
+  final String organiser;
+  final DateTime startTime;
+  final DateTime endTime;
+  final int attendees;
+  final bool isMine;
+  final bool isAttendee;
+
+  BookingDb({
+    required this.title,
+    required this.room,
+    required this.organiser,
+    required this.startTime,
+    required this.endTime,
+    required this.attendees,
+    this.isMine = false,
+    this.isAttendee = false,
+  });
+}

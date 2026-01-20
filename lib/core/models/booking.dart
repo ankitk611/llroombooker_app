@@ -17,3 +17,4 @@ class Booking {
     required this.status,
   });
 }
+
