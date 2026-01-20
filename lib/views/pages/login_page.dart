@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:roombooker/core/constants/values.dart';
+import 'package:roombooker/views/pages/dashboard_page.dart' hide AppColors;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -99,7 +100,10 @@ class _LoginPageState extends State<LoginPage> {
                   height: 52,
                   child: ElevatedButton(
                     onPressed: () {
-                      // TODO: Add authentication logic
+                      Navigator.pushReplacement(context, 
+                      MaterialPageRoute(builder: (context){
+                        return const DashboardPage();
+                      }));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.blue,
