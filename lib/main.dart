@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:roombooker/views/pages/create_booking_page.dart';
 import 'package:roombooker/views/splash_view.dart';
+import 'package:roombooker/views/pages/dashboard_page.dart';
 
 
 void main() {
@@ -14,7 +16,7 @@ class MainApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: SplashView(),
+        body: DashboardPage(),
       ),
     );
   }

@@ -2,59 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:roombooker/core/constants/values.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roombooker/core/models/booking_db.dart';
+import 'package:roombooker/views/pages/create_booking_page.dart';
+import 'package:roombooker/widgets/bookingcard_widget.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
+import 'package:roombooker/widgets/stat_item.dart';
 
 
-//----------Colors----------
-class AppColors {
-  static const primary = Color(0xFF1892F5);
-  static const primaryLight = Color(0xFFE8F2FE);
-  static const border = Color(0xFFDCE6F1);
-
-  static const textPrimary = Color(0xFF1F2937);
-  static const textSecondary = Color(0xFF6B7280);
-
-  static const success = Color(0xFF22C55E);
-  static const error = Color(0xFFEF4444);
-
-  static const background = Colors.white;
-}
 
 //---------FONTS----------
-class AppText {
-  static TextStyle screenTitle = GoogleFonts.poppins(
-    fontSize: 20,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-  );
-
-  static TextStyle cardTitle = GoogleFonts.poppins(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-  );
-
-  static TextStyle primary = GoogleFonts.poppins(
-    fontSize: 14,
-    fontWeight: FontWeight.w500,
-    color: AppColors.textPrimary,
-  );
-
-  static TextStyle secondary = GoogleFonts.poppins(
-    fontSize: 12,
-    fontWeight: FontWeight.w400,
-    color: AppColors.textSecondary,
-  );
-
-  static TextStyle label = GoogleFonts.poppins(
-    fontSize: 11,
-    fontWeight: FontWeight.w400,
-    color: AppColors.textSecondary,
-  );
-}
-
-
-
 //---------Dashboard Page----------
 
 class DashboardPage extends StatefulWidget {
@@ -68,9 +24,6 @@ class DashboardPage extends StatefulWidget {
     // TODO: implement build
     throw UnimplementedError();
   }
-
-
-  
 }
 
 class _DashboardPageState extends State<DashboardPage> {
@@ -79,12 +32,11 @@ class _DashboardPageState extends State<DashboardPage> {
   //BookingFilter selectedFilter = BookingFilter.all;
   BookingFilter selectedFilter = BookingFilter.all;
 
-
   final DateTime now = DateTime.now();
 
-late final List<Booking> allBookings = [
+late final List<BookingDb> allBookings = [
   // TODAY (2 bookings)
-  Booking(
+  BookingDb(
     title: "Leadership Vendor Meet Up",
     room: "Meeting Room 2",
     organiser: "Tanvi Lokhande",
@@ -93,7 +45,7 @@ late final List<Booking> allBookings = [
     endTime: DateTime(now.year, now.month, now.day, 11, 0),
     isMine: true,
   ),
-  Booking(
+  BookingDb(
     title: "Product Sync",
     room: "Conference Room 1",
     organiser: "Amanullah Shaikh",
@@ -104,7 +56,7 @@ late final List<Booking> allBookings = [
   ),
 
   // LAST 5 DAYS (2 more)
-  Booking(
+  BookingDb(
     title: "Design Review",
     room: "Meeting Room 3",
     organiser: "Tanvi Lokhande",
@@ -113,7 +65,7 @@ late final List<Booking> allBookings = [
     endTime: now.subtract(const Duration(days: 3)).add(const Duration(hours: 1)),
     isMine: true,
   ),
-  Booking(
+  BookingDb(
     title: "Tech Catch-up",
     room: "Conference Room 2",
     organiser: "Amanullah Shaikh",
@@ -124,7 +76,7 @@ late final List<Booking> allBookings = [
   ),
 
   // LAST 10 DAYS (1 more)
-  Booking(
+  BookingDb(
     title: "Monthly Planning",
     room: "Board Room",
     organiser: "Leadership Team",
@@ -135,10 +87,10 @@ late final List<Booking> allBookings = [
   ),
 ];
 
+//----------Filtered Bookings List----------
 
-  //----------Filtered Bookings List----------
- List<Booking> get upcomingBookings {
-  List<Booking> filtered =
+ List<BookingDb> get upcomingBookings {
+  List<BookingDb> filtered =
       allBookings.where((b) => b.isMine || b.isAttendee).toList();
 
   final now = DateTime.now();
@@ -198,49 +150,7 @@ late final List<Booking> allBookings = [
     );
   }
 
-//   AppBar _buildAppBar() {
-//   return AppBar(
-//     backgroundColor: AppColors.primary,
-//     elevation: 0,
-
-//     title: Image.asset(
-//       'assets/images/roombooker_logo.png',
-//       height: 38, // logo now has presence
-//       fit: BoxFit.contain,
-//     ),
-
-//     actions: [
-//       IconButton(
-//         icon: const FaIcon(
-//           FontAwesomeIcons.bell,
-//           size: 16,
-//           color: Colors.white,
-//         ),
-//         onPressed: () {},
-//       ),
-//       IconButton(
-//         onPressed: () {},
-//         icon: Container(
-//           padding: const EdgeInsets.all(6),
-//           decoration: BoxDecoration(
-//             shape: BoxShape.circle,
-//             border: Border.all(color: Colors.white, width: 1),
-//           ),
-//           child: const FaIcon(
-//             FontAwesomeIcons.user,
-//             size: 14,
-//             color: Colors.white,
-//           ),
-//         ),
-//       ),
-//       const SizedBox(width: 8),
-//     ],
-//   );
-// }
-
-    
-      
-      Widget _dashboardHeader() {
+  Widget _dashboardHeader() {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -272,31 +182,60 @@ late final List<Booking> allBookings = [
   Widget _quickActions() {
     return Row(
       children: [
-        _actionButton(Icons.add, "New Booking"),
+        _actionButton(Icons.add, "New Booking",
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CreateBookingPage(),
+            ),
+          );
+        },),
         const SizedBox(width: 12),
-        _actionButton(Icons.check, "My Bookings"),
+        _actionButton(Icons.check, "My Bookings", onPressed: () {  }),
       ],
     );
   }
 
-Widget _actionButton(IconData icon, String label) {
+Widget _actionButton(
+  IconData icon,
+  String label, {
+  required VoidCallback onPressed,
+}) {
   return Expanded(
-    child: ElevatedButton.icon(
-      onPressed: () {
-        // Handle action button press
-      },
-      icon: Icon(icon, size: 16),
-      label: Text(
-        label,
-        style: AppText.primary,
+    child: Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primaryLight, // same for both
-        foregroundColor: AppColors.textPrimary,
-        elevation: 0, // clean, flat enterprise look
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(
+          icon,
+          size: 16,
+          color: AppColors.primary,
+        ),
+        label: Text(
+          label,
+          style: AppText.primary.copyWith(
+            fontWeight: FontWeight.w600, // 🔹 stronger CTA
+            letterSpacing: 0.2,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryLight,
+          foregroundColor: AppColors.textPrimary,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
     ),
@@ -304,17 +243,15 @@ Widget _actionButton(IconData icon, String label) {
 }
 
 
-
-
-  //----------status bar widget----------
+//----------status bar widget----------
   Widget _statusBar() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: const [
-        _StatItem(FontAwesomeIcons.building, "22", "Total\nRooms"),
-        _StatItem(FontAwesomeIcons.calendarCheck, "2274", "Total\nBookings"),
-        _StatItem(FontAwesomeIcons.clock, "0", "Pending\nApprovals"),
-        _StatItem(FontAwesomeIcons.calendarDay, "12", "Today's\nBookings"),
+      children: [
+        StatItem(FontAwesomeIcons.building, "22", "Total\nRooms"),
+        StatItem(FontAwesomeIcons.calendarCheck, "2274", "Total\nBookings"),
+        StatItem(FontAwesomeIcons.clock, "0", "Pending\nApprovals"),
+        StatItem(FontAwesomeIcons.calendarDay, "12", "Today's\nBookings"),
       ],
     );
   }
@@ -406,104 +343,4 @@ Widget _styledRadio(String label, BookingFilter value) {
       },
     );
   }
-}
-
-class BookingCard extends StatelessWidget {
-  final Booking booking;
-
-  const BookingCard({super.key, required this.booking});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            booking.title,
-            style: AppText.cardTitle,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "${booking.room} • ${booking.organiser}",
-            style: AppText.secondary,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "${booking.attendees} people • "
-            "${booking.startTime.hour}:${booking.startTime.minute.toString().padLeft(2, '0')} - "
-            "${booking.endTime.hour}:${booking.endTime.minute.toString().padLeft(2, '0')}",
-            style: AppText.label,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
-class _StatItem extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String label;
-
-  const _StatItem(this.icon, this.value, this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 22,
-          backgroundColor: Colors.white,
-          child: Icon(icon, color: Colors.black),
-        ),
-        const SizedBox(height: 6),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11)),
-      ],
-    );
-  }
-}
-
-
-enum BookingFilter { today, tomorrow, custom, all }
-
-
-class Booking {
-  final String title;
-  final String room;
-  final String organiser;
-  final DateTime startTime;
-  final DateTime endTime;
-  final int attendees;
-  final bool isMine;
-  final bool isAttendee;
-
-  Booking({
-    required this.title,
-    required this.room,
-    required this.organiser,
-    required this.startTime,
-    required this.endTime,
-    required this.attendees,
-    this.isMine = false,
-    this.isAttendee = false,
-  });
 }
