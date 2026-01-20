@@ -276,61 +276,86 @@ Widget _actionButton(
   showDialog(
     context: context,
     builder: (context) {
-      return AlertDialog(
-        backgroundColor: AppColors.background,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          "Filter Meetings",
-          style: AppText.cardTitle,
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _styledRadio("Today", BookingFilter.today),
-            _styledRadio("Last 5 Days", BookingFilter.tomorrow),
-            _styledRadio("Last 10 Days", BookingFilter.custom),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: AppText.secondary),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+      return StatefulBuilder(
+        builder: (context, setModalState) {
+          return AlertDialog(
+            backgroundColor: AppColors.background,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(
+              "Filter Meetings",
+              style: AppText.cardTitle,
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _styledRadio(
+                  "Today",
+                  BookingFilter.today,
+                  setModalState,
+                ),
+                _styledRadio(
+                  "Last 5 Days",
+                  BookingFilter.tomorrow,
+                  setModalState,
+                ),
+                _styledRadio(
+                  "Last 10 Days",
+                  BookingFilter.custom,
+                  setModalState,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel", style: AppText.secondary),
               ),
-            ),
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              "Apply",
-              style: AppText.primary.copyWith(color: Colors.white),
-            ),
-          ),
-        ],
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Apply",
+                  style: AppText.primary.copyWith(color: Colors.white),
+                ),
+              ),
+            ],
+          );
+        },
       );
     },
   );
 }
 
 
-Widget _styledRadio(String label, BookingFilter value) {
+
+Widget _styledRadio(
+  String label,
+  BookingFilter value,
+  void Function(void Function()) setModalState,
+) {
   return RadioListTile<BookingFilter>(
     title: Text(label, style: AppText.secondary),
     value: value,
+    // ignore: deprecated_member_use
     groupValue: selectedFilter,
     activeColor: AppColors.primary,
+    // ignore: deprecated_member_use
     onChanged: (BookingFilter? newValue) {
-      setState(() {
+      setModalState(() {
         selectedFilter = newValue!;
       });
+      setState(() {}); // updates dashboard bookings
     },
   );
 }
+
 
 
     Widget _filterTile(String label, BookingFilter filter) {
