@@ -3,9 +3,10 @@ import 'package:roombooker/core/constants/values.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roombooker/core/models/booking_db.dart';
+import 'package:roombooker/views/pages/create_booking_page.dart';
 import 'package:roombooker/widgets/booking_card_db.dart';
 import 'package:roombooker/widgets/stat_item.dart';
-import 'package:roombooker/views/pages/add_booking_page.dart';
+
 
 
 //---------FONTS----------

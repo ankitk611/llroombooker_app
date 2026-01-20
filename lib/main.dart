@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:roombooker/views/pages/create_booking_page.dart';
 import 'package:roombooker/views/splash_view.dart';
 import 'package:roombooker/views/pages/dashboard_page.dart';
 
