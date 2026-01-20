@@ -6,6 +6,7 @@ import 'package:roombooker/views/pages/create_booking_page.dart';
 import 'package:roombooker/widgets/bookingcard_widget.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
 import 'package:roombooker/widgets/stat_item.dart';
+import 'package:roombooker/widgets/appbar_widget.dart';
 
 
 
@@ -122,13 +123,16 @@ late final List<BookingDb> allBookings = [
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-    backgroundColor: AppColors.textPrimary,
-    elevation: 0,
-    title: Text(
-      "Dashboard",
-      style: AppText.screenTitle.copyWith(color: Colors.white),
-    ),
+      appBar: CustomAppBar(
+        appName: 'RoomBooker', // Set the app name here
+        onNotificationsPressed: () {
+          // Handle notifications
+          print("Notifications pressed");
+        },
+        onProfilePressed: () {
+          // Handle profile
+          print("Profile pressed");
+        },
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
