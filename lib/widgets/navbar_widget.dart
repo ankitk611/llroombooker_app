@@ -31,7 +31,7 @@ class AppBottomNavbar extends StatelessWidget {
         return;
     }
 
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => page),
     );

@@ -68,6 +68,9 @@ class _AllBookingsState extends State<AllBookings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: const IconThemeData(
+          color: Colors.white, // 👈 back button color
+        ),
         elevation: 1,
         backgroundColor: const Color.fromARGB(255, 24, 0, 112),
         shadowColor: Colors.black.withOpacity(0.05),
