@@ -4,7 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roombooker/core/models/booking_db.dart';
 import 'package:roombooker/views/pages/create_booking_page.dart';
-import 'package:roombooker/widgets/booking_card_db.dart';
+import 'package:roombooker/widgets/bookingcard_widget.dart';
+import 'package:roombooker/widgets/navbar_widget.dart';
 import 'package:roombooker/widgets/stat_item.dart';
 
 
@@ -145,6 +146,7 @@ late final List<BookingDb> allBookings = [
           ],
         ),
       ),
+      bottomNavigationBar: AppBottomNavbar(currentIndex: 0),
     );
   }
 
