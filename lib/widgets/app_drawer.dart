@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:roombooker/core/methods/navigation_method.dart';
+import 'package:roombooker/views/pages/login_page.dart';
 
 class AppDrawer extends StatelessWidget {
   final int currentIndex;
@@ -60,7 +61,7 @@ class AppDrawer extends StatelessWidget {
 
             _drawerItem(
               context,
-              icon: Icons.list_alt,
+              icon: Icons.event_note,
               title: "My Bookings",
               index: 3,
             ),
@@ -86,9 +87,10 @@ class AppDrawer extends StatelessWidget {
               ),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
+                Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(),
+                    ),
                   (route) => false,
                 );
               },
