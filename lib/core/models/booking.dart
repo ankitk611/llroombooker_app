@@ -16,5 +16,7 @@ class Booking {
     required this.endTime,
     required this.status,
   });
+
+  get attendees => null;
 }
 

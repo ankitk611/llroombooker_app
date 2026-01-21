@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:roombooker/core/models/booking.dart';
 
 class BookingCard extends StatelessWidget {
   const BookingCard({super.key, required this.booking, required this.onReschedule, required this.onCancel});
 
-  final booking;
+  final Booking booking;
   final VoidCallback onReschedule;
   final VoidCallback onCancel;
 
@@ -32,9 +33,9 @@ class BookingCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Meeting Title
+          // Replace `booking.title` with `booking.roomName`
           Text(
-            booking.title,
+            booking.roomName, // Now using roomName as the title
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -42,9 +43,9 @@ class BookingCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          /// Room Name
+          // Replace `booking.roomName` if necessary
           Text(
-            booking.room,
+            booking.roomName,
             style: GoogleFonts.poppins(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -55,7 +56,6 @@ class BookingCard extends StatelessWidget {
           // Organizer & Attendees
           Row(
             children: [
-              /// Organizer
               Expanded(
                 child: Row(
                   children: [
@@ -66,7 +66,7 @@ class BookingCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      booking.organiser,
+                      booking.bookedBy, // Show the booker's name
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         color: Colors.black87,
@@ -75,7 +75,6 @@ class BookingCard extends StatelessWidget {
                   ],
                 ),
               ),
-              /// Attendees
               Row(
                 children: [
                   const FaIcon(
@@ -96,12 +95,8 @@ class BookingCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          // Time Row
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 8,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.blue.shade50,
               borderRadius: BorderRadius.circular(10),
@@ -115,7 +110,7 @@ class BookingCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '${booking.startTime.hour}:${booking.startTime.minute} - ${booking.endTime.hour}:${booking.endTime.minute}',
+                  '${booking.startTime} - ${booking.endTime}',
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
