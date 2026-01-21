@@ -3,6 +3,7 @@ import 'package:roombooker/core/constants/values.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roombooker/core/models/booking_db.dart';
 import 'package:roombooker/views/pages/create_booking_page.dart';
+import 'package:roombooker/views/pages/my_bookings_page.dart';
 import 'package:roombooker/widgets/app_drawer.dart';
 import 'package:roombooker/widgets/bookingcard_widget.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
@@ -201,7 +202,15 @@ late final List<BookingDb> allBookings = [
           );
         },),
         const SizedBox(width: 12),
-        _actionButton(Icons.check, "My Bookings", onPressed: () {  }),
+        _actionButton(Icons.check, "My Bookings", 
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MyBookingsPage(),
+            ),
+          );
+        },),
       ],
     );
   }

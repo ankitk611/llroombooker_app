@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:roombooker/views/pages/all_bookings_page.dart';
 import 'package:roombooker/views/pages/create_booking_page.dart';
 import 'package:roombooker/views/pages/dashboard_page.dart';
+import 'package:roombooker/views/pages/my_bookings_page.dart';
 import 'package:roombooker/views/pages/my_profile.dart';
 
  
@@ -34,7 +35,7 @@ class NavigationUtils {
         break;
 
         case 3:
-        page = AllBookings();
+        page = MyBookingsPage();
         break;
 
         case 4:
