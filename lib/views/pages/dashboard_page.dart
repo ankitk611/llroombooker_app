@@ -268,7 +268,7 @@ Widget _actionButton(
       children: [
         StatItem(FontAwesomeIcons.building, "22", "Total\nRooms"),
         StatItem(FontAwesomeIcons.calendarCheck, "2274", "Total\nBookings"),
-        StatItem(FontAwesomeIcons.clock, "0", "Pending\nApprovals"),
+        StatItem(FontAwesomeIcons.clock, "0", "My Upcoming\nBookings"),
         StatItem(FontAwesomeIcons.calendarDay, "12", "Today's\nBookings"),
       ],
     );
