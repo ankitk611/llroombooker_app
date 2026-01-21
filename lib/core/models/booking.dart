@@ -2,9 +2,9 @@ class Booking {
   final String bookingId;
   final String roomName;
   final String bookedBy;
-  final String date;
-  final String startTime;
-  final String endTime;
+  String date;
+  String startTime;
+  String endTime;
   final String status;
 
   Booking({
