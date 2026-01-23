@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooker/core/constants/values.dart';
-import 'package:roombooker/core/models/booking.dart';
+import 'package:roombooker/core/models/booking_db.dart';
+import 'package:roombooker/widgets/booking_card_db.dart';
+
 import 'package:roombooker/widgets/app_drawer.dart';
-import 'package:roombooker/widgets/bookingcard_widget.dart';
+//import 'package:roombooker/widgets/bookingcard_widget.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:roombooker/widgets/navbar_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -16,47 +20,47 @@ class AllBookings extends StatefulWidget {
 }
 
 class _AllBookingsState extends State<AllBookings> {
-  final List<Booking> mockBookings = [
-    Booking(
-      bookingId: 'B001',
-      roomName: 'Conference Room A',
-      bookedBy: 'Ankit Kumar',
-      date: '2026-01-16',
-      startTime: '10:00',
-      endTime: '11:00',
-      status: 'Confirmed',
-    ),
-    Booking(
-      bookingId: 'B002',
-      roomName: 'Meeting Room B',
-      bookedBy: 'Rahul',
-      date: '2026-01-16',
-      startTime: '14:00',
-      endTime: '15:30',
-      status: 'Confirmed',
-    ),
-    Booking(
-      bookingId: 'B003',
-      roomName: 'Conference Room A',
-      bookedBy: 'Priya',
-      date: '2026-01-17',
-      startTime: '09:00',
-      endTime: '10:00',
-      status: 'Cancelled',
-    ),
-    Booking(
-      bookingId: 'B002',
-      roomName: 'Meeting Room B',
-      bookedBy: 'Rahul',
-      date: '2026-01-15',
-      startTime: '14:00',
-      endTime: '15:30',
-      status: 'Confirmed',
-    ),
-  ];
+  //final List<BookingDb> mockBookings = [
+    // BookingDb(
+    //   bookingId: 'B001',
+    //   roomName: 'Conference Room A',
+    //   bookedBy: 'Ankit Kumar',
+    //   date: '2026-01-16',
+    //   startTime: '10:00',
+    //   endTime: '11:00',
+    //   status: 'Confirmed',
+    // ),
+    // BookingDb(
+    //   bookingId: 'B002',
+    //   roomName: 'Meeting Room B',
+    //   bookedBy: 'Rahul',
+    //   date: '2026-01-16',
+    //   startTime: '14:00',
+    //   endTime: '15:30',
+    //   status: 'Confirmed',
+    // ),
+    // Booking(
+    //   bookingId: 'B003',
+    //   roomName: 'Conference Room A',
+    //   bookedBy: 'Priya',
+    //   date: '2026-01-17',
+    //   startTime: '09:00',
+    //   endTime: '10:00',
+    //   status: 'Cancelled',
+    // ),
+    // Booking(
+    //   bookingId: 'B002',
+    //   roomName: 'Meeting Room B',
+    //   bookedBy: 'Rahul',
+    //   date: '2026-01-15',
+    //   startTime: '14:00',
+    //   endTime: '15:30',
+    //   status: 'Confirmed',
+    // ),
+  //];
 
   DateTime selectedDate = DateTime.now();
-  List<Booking> bookings = [];
+  List<BookingDb> bookings = [];
   bool isLoading = false;
 
   @override
@@ -231,11 +235,57 @@ class _AllBookingsState extends State<AllBookings> {
         "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
 
     // TODO: Replace with API call
-    await Future.delayed(Duration(seconds: 1));
+    //await Future.delayed(Duration(seconds: 1));
 
-    setState(() {
-      bookings = mockBookings.where((b) => b.date == formattedDate).toList();
-      isLoading = false;
-    });
+    try {
+    final response = await http.get(
+      Uri.parse(
+        "http://172.16.2.86/meetingroom/api/bookings?date=$formattedDate",
+      ),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      final List data = decoded is List ? decoded : decoded['data'] ?? [];
+
+      //final fetched = data.map(_mapApiToBookingDb).toList();
+      final List<BookingDb> fetched = data
+    .map((e) => _mapApiToBookingDb(e as Map<String, dynamic>))
+    .toList();
+
+
+      setState(() {
+        bookings = fetched;
+      });
+    } else {
+      setState(() => bookings = []);
+    }
+  } catch (e) {
+    setState(() => bookings = []);
+  } finally {
+    setState(() => isLoading = false);
   }
-}
+  }
+
+
+    // setState(() {
+    //   bookings = mockBookings.where((b) => b.date == formattedDate).toList();
+    //   isLoading = false;
+    // });
+
+    BookingDb _mapApiToBookingDb(Map<String, dynamic> json) {
+  final start = DateTime.parse(json['start_time']).toLocal();
+  final end = DateTime.parse(json['end_time']).toLocal();
+
+  return BookingDb(
+    title: json['title'],
+    room: json['room']['name'],
+    organiser: json['user']['name'],
+    attendees: json['number_of_attendees'] ?? 0,
+    startTime: start,
+    endTime: end,
+    isMine: true, // temporary (same as dashboard)
+  );
+ }
+  }

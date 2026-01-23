@@ -1,4 +1,5 @@
-enum BookingFilter { today, tomorrow, custom, all }
+//enum BookingFilter { today, tomorrow, custom, all }
+enum BookingFilter { today, last5Days, last10Days, all, next5Days, next10Days }
 
 
 class BookingDb {
