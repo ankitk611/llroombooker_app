@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roombooker/core/methods/create_booking_api_service.dart';
 import 'package:roombooker/widgets/app_drawer.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
 
@@ -10,8 +11,8 @@ import '../../core/models/create_booking_models.dart';
 import '../../widgets/create_booking_widgets.dart';
 
 class CreateBookingPage extends StatefulWidget {
-  const CreateBookingPage({super.key, CreateBookingService? service})
-    : service = service ?? const MockCreateBookingService();
+   CreateBookingPage({super.key, CreateBookingService? service})
+    : service = service ?? ApiCreateBookingService();
 
   final CreateBookingService service;
 

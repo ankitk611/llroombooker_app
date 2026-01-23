@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:roombooker/core/constants/values.dart';
 import 'package:roombooker/views/pages/dashboard_page.dart' hide AppColors;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,6 +22,56 @@ class _LoginPageState extends State<LoginPage> {
 
   // Password visibility toggle
   bool _isPasswordVisible = false;
+  bool _isLoggingIn = false;
+
+//--------adding api method-------
+Future<void> _login() async {
+  final email = _emailController.text.trim();
+  final password = _passwordController.text.trim();
+
+  if (email.isEmpty || password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Email and password are required')),
+    );
+    return;
+  }
+
+  setState(() => _isLoggingIn = true);
+
+  try {
+    final response = await http.post(
+      Uri.parse('http://172.16.2.86/meetingroom/api/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    final decoded = jsonDecode(response.body);
+
+    if (response.statusCode == 200 && decoded['status'] == true) {
+      // ✅ Login success
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const DashboardPage()),
+      );
+    } else {
+      // ❌ Login failed
+      final message = decoded['message'] ?? 'Login failed';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Something went wrong: $e')),
+    );
+  } finally {
+    if (mounted) setState(() => _isLoggingIn = false);
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,12 +152,14 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(context, 
-                      MaterialPageRoute(builder: (context){
-                        return const DashboardPage();
-                      }));
-                    },
+                    onPressed: _isLoggingIn ? null : _login,
+
+                    // () {
+                    //   Navigator.pushReplacement(context, 
+                    //   MaterialPageRoute(builder: (context){
+                    //     return const DashboardPage();
+                    //   }));
+                    // },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.blue,
                       foregroundColor: Colors.white,
@@ -112,10 +167,19 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(
-                      'Login',
-                      style: Styles.whiteSubtitleTextStyle(fontSize: 18),
-                    ),
+                    child: _isLoggingIn
+    ? const SizedBox(
+        height: 20,
+        width: 20,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: Colors.white,
+        ),
+      )
+    : Text(
+        'Login',
+        style: Styles.whiteSubtitleTextStyle(fontSize: 18),
+      ),
                   ),
                 ),
 

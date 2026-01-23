@@ -5,14 +5,13 @@ import 'package:roombooker/core/models/booking_db.dart';
 import 'package:roombooker/views/pages/create_booking_page.dart';
 import 'package:roombooker/views/pages/my_bookings_page.dart';
 import 'package:roombooker/widgets/app_drawer.dart';
-import 'package:roombooker/widgets/bookingcard_widget.dart';
+import 'package:roombooker/widgets/booking_card_db.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
 import 'package:roombooker/widgets/stat_item.dart';
 import 'package:roombooker/widgets/appbar_widget.dart';
 import 'package:roombooker/views/pages/my_profile.dart';
-
-
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 //---------FONTS----------
 //---------Dashboard Page----------
@@ -23,105 +22,223 @@ class DashboardPage extends StatefulWidget {
   @override
   State<DashboardPage> createState() => _DashboardPageState();
   
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     // TODO: implement build
+//     throw UnimplementedError();
+//   }
 }
 
 class _DashboardPageState extends State<DashboardPage> {
   static const Color mainBlue = Color(0xFF3B3870);
 
   //BookingFilter selectedFilter = BookingFilter.all;
-  BookingFilter selectedFilter = BookingFilter.all;
+  BookingFilter selectedFilter = BookingFilter.next10Days;
 
   final DateTime now = DateTime.now();
 
-late final List<BookingDb> allBookings = [
-  // TODAY (2 bookings)
-  BookingDb(
-    title: "Leadership Vendor Meet Up",
-    room: "Meeting Room 2",
-    organiser: "Tanvi Lokhande",
-    attendees: 3,
-    startTime: DateTime(now.year, now.month, now.day, 10, 0),
-    endTime: DateTime(now.year, now.month, now.day, 11, 0),
-    isMine: true,
-  ),
-  BookingDb(
-    title: "Product Sync",
-    room: "Conference Room 1",
-    organiser: "Amanullah Shaikh",
-    attendees: 5,
-    startTime: DateTime(now.year, now.month, now.day, 15, 0),
-    endTime: DateTime(now.year, now.month, now.day, 16, 0),
-    isAttendee: true,
-  ),
+  List<BookingDb> allBookings = [];
+  bool isLoadingBookings = false;
 
-  // LAST 5 DAYS (2 more)
-  BookingDb(
-    title: "Design Review",
-    room: "Meeting Room 3",
-    organiser: "Tanvi Lokhande",
-    attendees: 4,
-    startTime: now.subtract(const Duration(days: 3)),
-    endTime: now.subtract(const Duration(days: 3)).add(const Duration(hours: 1)),
-    isMine: true,
-  ),
-  BookingDb(
-    title: "Tech Catch-up",
-    room: "Conference Room 2",
-    organiser: "Amanullah Shaikh",
-    attendees: 2,
-    startTime: now.subtract(const Duration(days: 5)),
-    endTime: now.subtract(const Duration(days: 5)).add(const Duration(hours: 1)),
-    isAttendee: true,
-  ),
+  //adding initState()
+    @override
+  void initState() {
+    super.initState();
+    fetchUpcomingBookings(); // ✅ ADD THIS LINE
+  }
 
-  // LAST 10 DAYS (1 more)
-  BookingDb(
-    title: "Monthly Planning",
-    room: "Board Room",
-    organiser: "Leadership Team",
-    attendees: 8,
-    startTime: now.subtract(const Duration(days: 9)),
-    endTime: now.subtract(const Duration(days: 9)).add(const Duration(hours: 2)),
+//---------REMOVING HARDCODED PARTS TO INTEGRATE API---------  
+// late final List<BookingDb> allBookings = [
+//   // TODAY (2 bookings)
+//   BookingDb(
+//     title: "Leadership Vendor Meet Up",
+//     room: "Meeting Room 2",
+//     organiser: "Tanvi Lokhande",
+//     attendees: 3,
+//     startTime: DateTime(now.year, now.month, now.day, 10, 0),
+//     endTime: DateTime(now.year, now.month, now.day, 11, 0),
+//     isMine: true,
+//   ),
+//   BookingDb(
+//     title: "Product Sync",
+//     room: "Conference Room 1",
+//     organiser: "Amanullah Shaikh",
+//     attendees: 5,
+//     startTime: DateTime(now.year, now.month, now.day, 15, 0),
+//     endTime: DateTime(now.year, now.month, now.day, 16, 0),
+//     isAttendee: true,
+//   ),
+
+//   // LAST 5 DAYS (2 more)
+//   BookingDb(
+//     title: "Design Review",
+//     room: "Meeting Room 3",
+//     organiser: "Tanvi Lokhande",
+//     attendees: 4,
+//     startTime: now.subtract(const Duration(days: 3)),
+//     endTime: now.subtract(const Duration(days: 3)).add(const Duration(hours: 1)),
+//     isMine: true,
+//   ),
+//   BookingDb(
+//     title: "Tech Catch-up",
+//     room: "Conference Room 2",
+//     organiser: "Amanullah Shaikh",
+//     attendees: 2,
+//     startTime: now.subtract(const Duration(days: 5)),
+//     endTime: now.subtract(const Duration(days: 5)).add(const Duration(hours: 1)),
+//     isAttendee: true,
+//   ),
+
+//   // LAST 10 DAYS (1 more)
+//   BookingDb(
+//     title: "Monthly Planning",
+//     room: "Board Room",
+//     organiser: "Leadership Team",
+//     attendees: 8,
+//     startTime: now.subtract(const Duration(days: 9)),
+//     endTime: now.subtract(const Duration(days: 9)).add(const Duration(hours: 2)),
+//     isMine: true,
+//   ),
+// ];
+
+//adding model mapping function
+BookingDb _mapApiBookingToBookingDb(Map<String, dynamic> json) {
+  final start = DateTime.parse(json['start_time']).toLocal();
+  final end = DateTime.parse(json['end_time']).toLocal();
+
+  return BookingDb(
+    title: json['title'],
+    room: json['room']['name'],
+    organiser: json['user']['name'],
+    attendees: json['number_of_attendees'] ?? 0,
+    startTime: start,
+    endTime: end,
+
+    // Since API is unfiltered (testing)
+    // we temporarily treat all as "mine"
     isMine: true,
-  ),
-];
+    isAttendee: false,
+  );
+}
+
+
+//adding fetch method
+Future<void> fetchUpcomingBookings() async {
+  setState(() => isLoadingBookings = true);
+
+  try {
+    final response = await http.get(
+      Uri.parse('http://172.16.2.86/meetingroom/api/bookings'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      //final List data = jsonDecode(response.body);
+      final decoded = jsonDecode(response.body);
+
+final List data = decoded is List
+    ? decoded
+    : decoded['data'] ?? [];
+
+
+      final fetched = data
+          .map((e) => _mapApiBookingToBookingDb(e))
+          .toList();
+
+      setState(() {
+        allBookings = fetched;
+      });
+    } else {
+      setState(() => allBookings = []);
+    }
+  } catch (e) {
+    setState(() => allBookings = []);
+  } finally {
+    setState(() => isLoadingBookings = false);
+  }
+}
+
 
 //----------Filtered Bookings List----------
 
  List<BookingDb> get upcomingBookings {
-  List<BookingDb> filtered =
-      allBookings.where((b) => b.isMine || b.isAttendee).toList();
-
   final now = DateTime.now();
+ // List<BookingDb> filtered =
+  //List<BookingDb> filtered = allBookings;
 
-  if (selectedFilter == BookingFilter.today) {
-    filtered = filtered.where((b) =>
-      b.startTime.year == now.year &&
-      b.startTime.month == now.month &&
-      b.startTime.day == now.day
-    ).toList();
-  }
+      //allBookings.where((b) => b.isMine || b.isAttendee).toList();
 
-  if (selectedFilter == BookingFilter.tomorrow) {
-    filtered = filtered.where((b) =>
-      b.startTime.isAfter(now.subtract(const Duration(days: 5)))
-    ).toList();
-  }
+  
 
-  if (selectedFilter == BookingFilter.custom) {
-    filtered = filtered.where((b) =>
-      b.startTime.isAfter(now.subtract(const Duration(days: 10)))
-    ).toList();
-  }
+  // if (selectedFilter == BookingFilter.today) {
+  //   filtered = filtered.where((b) =>
+  //     b.startTime.year == now.year &&
+  //     b.startTime.month == now.month &&
+  //     b.startTime.day == now.day
+  //   ).toList();
+  // }
 
-  filtered.sort((a, b) => b.startTime.compareTo(a.startTime));
-  return filtered.take(5).toList();
+  // if (selectedFilter == BookingFilter.tomorrow) {
+  //   filtered = filtered.where((b) =>
+  //     b.startTime.isAfter(now.subtract(const Duration(days: 5)))
+  //   ).toList();
+  // }
+
+  // if (selectedFilter == BookingFilter.custom) {
+  //   filtered = filtered.where((b) =>
+  //     b.startTime.isAfter(now.subtract(const Duration(days: 10)))
+  //   ).toList();
+  // }
+
+  List<BookingDb> filtered = allBookings
+      .where((b) => b.startTime.isAfter(now))
+      .toList();
+
+//apply filter window
+
+if (selectedFilter == BookingFilter.all) {
+  final now = DateTime.now();
+  return allBookings
+      .where((b) => b.startTime.isAfter(now))
+      .toList()
+    ..sort((a, b) => a.startTime.compareTo(b.startTime));
 }
+
+
+       if (selectedFilter == BookingFilter.today) {
+    filtered = filtered.where((b) =>
+        b.startTime.year == now.year &&
+        b.startTime.month == now.month &&
+        b.startTime.day == now.day
+    ).toList();
+  }
+
+  if (selectedFilter == BookingFilter.next5Days) {
+    // filtered = filtered.where((b) =>
+    //     b.startTime.isAfter(now.subtract(const Duration(days: 5)))
+    // ).toList();
+    final limit = now.add(const Duration(days: 5));
+    filtered = filtered.where((b) => b.startTime.isBefore(limit)).toList();
+  }
+
+  if (selectedFilter == BookingFilter.next10Days) {
+    // filtered = filtered.where((b) =>
+    //     b.startTime.isAfter(now.subtract(const Duration(days: 10)))
+    // ).toList();
+    final limit = now.add(const Duration(days: 10));
+    filtered = filtered.where((b) => b.startTime.isBefore(limit)).toList();
+  }
+
+  filtered.sort((a, b) => a.startTime.compareTo(b.startTime));
+  return filtered;
+}
+
+  // filtered.sort((a, b) => b.startTime.compareTo(a.startTime));
+  // return filtered.take(5).toList();
+
+
 
 
   @override
@@ -197,7 +314,7 @@ late final List<BookingDb> allBookings = [
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const CreateBookingPage(),
+              builder: (context) =>  CreateBookingPage(),
             ),
           );
         },),
@@ -268,7 +385,7 @@ Widget _actionButton(
       children: [
         StatItem(FontAwesomeIcons.building, "22", "Total\nRooms"),
         StatItem(FontAwesomeIcons.calendarCheck, "2274", "Total\nBookings"),
-        StatItem(FontAwesomeIcons.clock, "0", "My Upcoming\nBookings"),
+        StatItem(FontAwesomeIcons.clock, upcomingBookings.length.toString(), "My Upcoming\nBookings",),
         StatItem(FontAwesomeIcons.calendarDay, "12", "Today's\nBookings"),
       ],
     );
@@ -277,6 +394,26 @@ Widget _actionButton(
   //----------upcoming bookings widget----------
 
     Widget _upcomingBookings() {
+      if (isLoadingBookings) {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  if (upcomingBookings.isEmpty) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Upcoming Bookings",
+          style: Styles.blueTitleTextStyle(fontSize: 26),
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          "No upcoming bookings",
+          style: TextStyle(color: Colors.grey),
+        ),
+      ],
+    );
+  }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -309,21 +446,25 @@ Widget _actionButton(
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _styledRadio(
-                  "Today",
-                  BookingFilter.today,
-                  setModalState,
-                ),
-                _styledRadio(
-                  "Last 5 Days",
-                  BookingFilter.tomorrow,
-                  setModalState,
-                ),
-                _styledRadio(
-                  "Last 10 Days",
-                  BookingFilter.custom,
-                  setModalState,
-                ),
+                // _styledRadio(
+                //   "Today",
+                //   BookingFilter.today,
+                //   setModalState,
+                // ),
+                // _styledRadio(
+                //   "Last 5 Days",
+                //   BookingFilter.tomorrow,
+                //   setModalState,
+                // ),
+                // _styledRadio(
+                //   "Last 10 Days",
+                //   BookingFilter.custom,
+                //   setModalState,
+                // ),
+                _styledRadio("Today", BookingFilter.today, setModalState),
+                _styledRadio("Next 5 Days", BookingFilter.next5Days, setModalState),
+                _styledRadio("Next 10 Days", BookingFilter.next10Days, setModalState),
+
               ],
             ),
             actions: [
