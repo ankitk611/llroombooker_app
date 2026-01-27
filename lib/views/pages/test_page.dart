@@ -6,7 +6,7 @@ class TestPage extends StatelessWidget {
   const TestPage({super.key});
 
   Future<List<Map<String, dynamic>>> fetchUsers() async {
-    const String apiUrl = 'http://172.16.2.86/meetingroom/api/users';
+    const String apiUrl = 'http://172.16.2.75/meetingroom/api/users';
 
     final response = await http.get(
       Uri.parse(apiUrl),

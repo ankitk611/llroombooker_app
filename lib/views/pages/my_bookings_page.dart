@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roombooker/core/constants/values.dart';
 import 'package:roombooker/core/models/booking.dart';
-import 'package:roombooker/widgets/bookingcard_mb.dart';  
+import 'package:roombooker/widgets/bookingcard_mb.dart';
 
 class MyBookingsPage extends StatefulWidget {
   const MyBookingsPage({super.key});
@@ -45,17 +45,20 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
 
   // Reschedule booking method
   void _rescheduleBooking(Booking booking) async {
+    final parts = booking.date.split('-');
+    print(booking.date);
     DateTime? newDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.parse(booking.date),
-      firstDate: DateTime(2022),
-      lastDate: DateTime(2025),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
     );
 
     if (newDate != null) {
       TimeOfDay? newTime = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.fromDateTime(DateTime.parse("${booking.date} ${booking.startTime}")),
+        initialTime: TimeOfDay.fromDateTime(
+          DateTime.parse("${booking.date} ${booking.startTime}"),
+        ),
       );
 
       if (newTime != null) {
@@ -63,11 +66,14 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
           // Update booking with new date and time
           booking.date = "${newDate.year}-${newDate.month}-${newDate.day}";
           booking.startTime = "${newTime.hour}:${newTime.minute}";
-          booking.endTime = "${newTime.hour + 1}:${newTime.minute}"; // Keeping 1 hour duration as example
+          booking.endTime =
+              "${newTime.hour + 1}:${newTime.minute}"; // Keeping 1 hour duration as example
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Booking Rescheduled to ${booking.startTime}")),
+          SnackBar(
+            content: Text("Booking Rescheduled to ${booking.startTime}"),
+          ),
         );
       }
     }
@@ -94,9 +100,9 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                   allBookings.remove(booking);
                 });
                 Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Booking Canceled")),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Booking Canceled")));
               },
               child: Text("Yes"),
             ),
@@ -156,9 +162,7 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _myBookingsList(),
-          ],
+          children: [_myBookingsList()],
         ),
       ),
     );
@@ -175,10 +179,7 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.border),
         ),
-        child: Text(
-          "No organizer bookings found.",
-          style: AppText.secondary,
-        ),
+        child: Text("No organizer bookings found.", style: AppText.secondary),
       );
     }
 
@@ -190,11 +191,13 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
           style: Styles.blueTitleTextStyle(fontSize: 26),
         ),
         const SizedBox(height: 12),
-        ...myUpcomingBookings.map((b) => BookingCard(
-          booking: b,
-          onReschedule: () => _rescheduleBooking(b),
-          onCancel: () => _cancelBooking(b),
-        )),
+        ...myUpcomingBookings.map(
+          (b) => BookingCard(
+            booking: b,
+            onReschedule: () => _rescheduleBooking(b),
+            onCancel: () => _cancelBooking(b),
+          ),
+        ),
       ],
     );
   }

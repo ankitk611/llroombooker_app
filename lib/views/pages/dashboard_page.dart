@@ -128,7 +128,7 @@ Future<void> fetchUpcomingBookings() async {
 
   try {
     final response = await http.get(
-      Uri.parse('http://172.16.2.86/meetingroom/api/bookings'),
+      Uri.parse('http://172.16.2.75/meetingroom/api/bookings'),
       headers: {
         'Content-Type': 'application/json',
       },

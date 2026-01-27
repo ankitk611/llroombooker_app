@@ -240,7 +240,7 @@ class _AllBookingsState extends State<AllBookings> {
     try {
     final response = await http.get(
       Uri.parse(
-        "http://172.16.2.86/meetingroom/api/bookings?date=$formattedDate",
+        "http://172.16.2.75/meetingroom/api/bookings?date=$formattedDate",
       ),
       headers: {'Content-Type': 'application/json'},
     );

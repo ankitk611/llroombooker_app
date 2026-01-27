@@ -6,7 +6,7 @@ import 'create_booking_service.dart';
 
 class ApiCreateBookingService implements CreateBookingService {
   static const String _baseUrl =
-      'http://172.16.2.86/meetingroom/api';
+      'http://172.16.2.75/meetingroom/api';
 
   final _mock = MockCreateBookingService();
 
