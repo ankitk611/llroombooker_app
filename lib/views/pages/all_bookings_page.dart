@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooker/core/constants/values.dart';
+import 'package:roombooker/core/methods/token_methods.dart';
 import 'package:roombooker/core/models/booking_db.dart';
 import 'package:roombooker/widgets/booking_card_db.dart';
 
@@ -11,6 +12,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:roombooker/widgets/navbar_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:roombooker/core/constants/url.dart';
 
 class AllBookings extends StatefulWidget {
   const AllBookings({super.key});
@@ -240,9 +242,12 @@ class _AllBookingsState extends State<AllBookings> {
     try {
     final response = await http.get(
       Uri.parse(
-        "http://172.16.2.75/meetingroom/api/bookings?date=$formattedDate",
+        "${Url.baseUrl}/bookings?date=$formattedDate",
       ),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${await TokenUtils().getBearerToken()}',
+      },
     );
 
     if (response.statusCode == 200) {

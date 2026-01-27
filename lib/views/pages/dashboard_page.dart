@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:roombooker/core/constants/values.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roombooker/core/methods/token_methods.dart';
 import 'package:roombooker/core/models/booking_db.dart';
 import 'package:roombooker/views/pages/create_booking_page.dart';
 import 'package:roombooker/views/pages/my_bookings_page.dart';
@@ -12,6 +13,7 @@ import 'package:roombooker/widgets/appbar_widget.dart';
 import 'package:roombooker/views/pages/my_profile.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:roombooker/core/constants/url.dart';
 
 //---------FONTS----------
 //---------Dashboard Page----------
@@ -128,9 +130,10 @@ Future<void> fetchUpcomingBookings() async {
 
   try {
     final response = await http.get(
-      Uri.parse('http://172.16.2.75/meetingroom/api/bookings'),
+      Uri.parse('${Url.baseUrl}/bookings'),
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${await TokenUtils().getBearerToken()}',
       },
     );
 
@@ -246,9 +249,11 @@ if (selectedFilter == BookingFilter.all) {
     return Scaffold(
       appBar: CustomAppBar(
         appName: 'RoomBooker', // Set the app name here
-        onNotificationsPressed: () {
+        onNotificationsPressed: () async{
           // Handle notifications
-          print("Notifications pressed");
+          final String? token = await TokenUtils().getBearerToken();
+          print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+          print(token);
         },
         onProfilePressed: () {
           // Handle profile

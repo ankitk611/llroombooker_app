@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:roombooker/core/constants/url.dart';
 
 import '../models/create_booking_models.dart';
 import 'create_booking_service.dart';
 
 class ApiCreateBookingService implements CreateBookingService {
-  static const String _baseUrl =
-      'http://172.16.2.75/meetingroom/api';
 
   final _mock = MockCreateBookingService();
 
@@ -23,7 +22,7 @@ Future<List<Attendee>> searchInternalAttendees(String query) async {
   if (q.isEmpty) return [];
 
   final response = await http.get(
-    Uri.parse('$_baseUrl/users'),
+    Uri.parse('${Url.baseUrl}/users'),
     headers: {
       'Content-Type': 'application/json',
     },

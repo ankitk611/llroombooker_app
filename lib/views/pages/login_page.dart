@@ -3,9 +3,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:roombooker/core/constants/values.dart';
+import 'package:roombooker/core/methods/token_methods.dart';
 import 'package:roombooker/views/pages/dashboard_page.dart' hide AppColors;
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:roombooker/core/constants/url.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -40,7 +42,7 @@ Future<void> _login() async {
 
   try {
     final response = await http.post(
-      Uri.parse('http://172.16.2.75/meetingroom/api/login'),
+      Uri.parse('${Url.baseUrl}/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'email': email,
@@ -51,6 +53,9 @@ Future<void> _login() async {
     final decoded = jsonDecode(response.body);
 
     if (response.statusCode == 200 && decoded['status'] == true) {
+      print(decoded);
+      await TokenUtils().saveToken(decoded['access_token']);
+      print(decoded['access_token']);
       // ✅ Login success
       Navigator.pushReplacement(
         context,

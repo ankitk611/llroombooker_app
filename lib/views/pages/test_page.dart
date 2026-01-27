@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:roombooker/core/constants/url.dart';
 
 class TestPage extends StatelessWidget {
   const TestPage({super.key});
 
   Future<List<Map<String, dynamic>>> fetchUsers() async {
-    const String apiUrl = 'http://172.16.2.75/meetingroom/api/users';
+    const String apiUrl = '${Url.baseUrl}/users';
 
     final response = await http.get(
       Uri.parse(apiUrl),
