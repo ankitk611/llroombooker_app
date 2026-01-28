@@ -49,59 +49,7 @@ class _DashboardPageState extends State<DashboardPage> {
     fetchUpcomingBookings(); // ✅ ADD THIS LINE
   }
 
-//---------REMOVING HARDCODED PARTS TO INTEGRATE API---------  
-// late final List<BookingDb> allBookings = [
-//   // TODAY (2 bookings)
-//   BookingDb(
-//     title: "Leadership Vendor Meet Up",
-//     room: "Meeting Room 2",
-//     organiser: "Tanvi Lokhande",
-//     attendees: 3,
-//     startTime: DateTime(now.year, now.month, now.day, 10, 0),
-//     endTime: DateTime(now.year, now.month, now.day, 11, 0),
-//     isMine: true,
-//   ),
-//   BookingDb(
-//     title: "Product Sync",
-//     room: "Conference Room 1",
-//     organiser: "Amanullah Shaikh",
-//     attendees: 5,
-//     startTime: DateTime(now.year, now.month, now.day, 15, 0),
-//     endTime: DateTime(now.year, now.month, now.day, 16, 0),
-//     isAttendee: true,
-//   ),
 
-//   // LAST 5 DAYS (2 more)
-//   BookingDb(
-//     title: "Design Review",
-//     room: "Meeting Room 3",
-//     organiser: "Tanvi Lokhande",
-//     attendees: 4,
-//     startTime: now.subtract(const Duration(days: 3)),
-//     endTime: now.subtract(const Duration(days: 3)).add(const Duration(hours: 1)),
-//     isMine: true,
-//   ),
-//   BookingDb(
-//     title: "Tech Catch-up",
-//     room: "Conference Room 2",
-//     organiser: "Amanullah Shaikh",
-//     attendees: 2,
-//     startTime: now.subtract(const Duration(days: 5)),
-//     endTime: now.subtract(const Duration(days: 5)).add(const Duration(hours: 1)),
-//     isAttendee: true,
-//   ),
-
-//   // LAST 10 DAYS (1 more)
-//   BookingDb(
-//     title: "Monthly Planning",
-//     room: "Board Room",
-//     organiser: "Leadership Team",
-//     attendees: 8,
-//     startTime: now.subtract(const Duration(days: 9)),
-//     endTime: now.subtract(const Duration(days: 9)).add(const Duration(hours: 2)),
-//     isMine: true,
-//   ),
-// ];
 
 //adding model mapping function
 BookingDb _mapApiBookingToBookingDb(Map<String, dynamic> json) {
@@ -168,32 +116,7 @@ final List data = decoded is List
 
  List<BookingDb> get upcomingBookings {
   final now = DateTime.now();
- // List<BookingDb> filtered =
-  //List<BookingDb> filtered = allBookings;
-
-      //allBookings.where((b) => b.isMine || b.isAttendee).toList();
-
-  
-
-  // if (selectedFilter == BookingFilter.today) {
-  //   filtered = filtered.where((b) =>
-  //     b.startTime.year == now.year &&
-  //     b.startTime.month == now.month &&
-  //     b.startTime.day == now.day
-  //   ).toList();
-  // }
-
-  // if (selectedFilter == BookingFilter.tomorrow) {
-  //   filtered = filtered.where((b) =>
-  //     b.startTime.isAfter(now.subtract(const Duration(days: 5)))
-  //   ).toList();
-  // }
-
-  // if (selectedFilter == BookingFilter.custom) {
-  //   filtered = filtered.where((b) =>
-  //     b.startTime.isAfter(now.subtract(const Duration(days: 10)))
-  //   ).toList();
-  // }
+ 
 
   List<BookingDb> filtered = allBookings
       .where((b) => b.startTime.isAfter(now))
@@ -408,12 +331,12 @@ Widget _actionButton(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Upcoming Bookings",
+          "Upcoming Meetings",
           style: Styles.blueTitleTextStyle(fontSize: 26),
         ),
         const SizedBox(height: 12),
         const Text(
-          "No upcoming bookings",
+          "No upcoming meetings",
           style: TextStyle(color: Colors.grey),
         ),
       ],
@@ -423,7 +346,7 @@ Widget _actionButton(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
          Text(
-          "Upcoming Bookings",
+          "Upcoming Meetings",
           style: Styles.blueTitleTextStyle(fontSize: 26),
         ),
         const SizedBox(height: 12),
@@ -451,21 +374,7 @@ Widget _actionButton(
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // _styledRadio(
-                //   "Today",
-                //   BookingFilter.today,
-                //   setModalState,
-                // ),
-                // _styledRadio(
-                //   "Last 5 Days",
-                //   BookingFilter.tomorrow,
-                //   setModalState,
-                // ),
-                // _styledRadio(
-                //   "Last 10 Days",
-                //   BookingFilter.custom,
-                //   setModalState,
-                // ),
+                
                 _styledRadio("Today", BookingFilter.today, setModalState),
                 _styledRadio("Next 5 Days", BookingFilter.next5Days, setModalState),
                 _styledRadio("Next 10 Days", BookingFilter.next10Days, setModalState),

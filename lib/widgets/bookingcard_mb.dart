@@ -6,12 +6,28 @@ import 'package:roombooker/core/models/booking.dart';
 class BookingCard extends StatelessWidget {
   const BookingCard({super.key, required this.booking, required this.onReschedule, required this.onCancel});
 
-  final Booking booking;
+  
+  //final Booking booking;
+  final Map<String, dynamic> booking;
+
   final VoidCallback onReschedule;
   final VoidCallback onCancel;
 
   @override
   Widget build(BuildContext context) {
+    //added this snippet
+    final roomName = booking['room']?['name'] ?? 'Room';
+    final bookedBy = booking['user']?['name'] ?? 'Unknown';
+    final attendees = booking['number_of_attendees'] ?? 0;
+
+    final startTime = booking['start_time'] != null
+        ? booking['start_time'].substring(11, 16)
+        : '--:--';
+
+    final endTime = booking['end_time'] != null
+        ? booking['end_time'].substring(11, 16)
+        : '--:--';
+        //----------------------------
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       padding: const EdgeInsets.all(14),
@@ -35,7 +51,7 @@ class BookingCard extends StatelessWidget {
         children: [
           // Replace `booking.title` with `booking.roomName`
           Text(
-            booking.roomName, // Now using roomName as the title
+           roomName, // Now using roomName as the title
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -45,7 +61,7 @@ class BookingCard extends StatelessWidget {
           const SizedBox(height: 4),
           // Replace `booking.roomName` if necessary
           Text(
-            booking.roomName,
+            roomName,
             style: GoogleFonts.poppins(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -66,7 +82,7 @@ class BookingCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      booking.bookedBy, // Show the booker's name
+                      bookedBy, // Show the booker's name
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         color: Colors.black87,
@@ -84,7 +100,7 @@ class BookingCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    '${booking.attendees} people',
+                    '$attendees people',
                     style: GoogleFonts.poppins(
                       fontSize: 13,
                       color: Colors.black87,
@@ -110,7 +126,7 @@ class BookingCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '${booking.startTime} - ${booking.endTime}',
+                  '$startTime - $endTime',
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,

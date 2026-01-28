@@ -5,9 +5,58 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooker/core/constants/values.dart';
 import 'package:roombooker/widgets/app_drawer.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:roombooker/core/constants/url.dart';
+import 'package:roombooker/core/methods/token_methods.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  Map<String, dynamic>? profile;
+  bool isLoading = false;
+
+  @override
+void initState() {
+  super.initState();
+  fetchMyProfile();
+}
+
+//fetchmyprofile
+Future<void> fetchMyProfile() async {
+  setState(() => isLoading = true);
+
+  try {
+    final token = await TokenUtils().getBearerToken();
+
+    final response = await http.get(
+      Uri.parse('${Url.baseUrl}/users/myprofile'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+
+      setState(() {
+        profile = decoded['data']; // 👈 IMPORTANT
+      });
+    } else {
+      setState(() => profile = null);
+    }
+  } catch (e) {
+    setState(() => profile = null);
+  } finally {
+    setState(() => isLoading = false);
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -46,45 +95,41 @@ class ProfilePage extends StatelessWidget {
           centerTitle: false,
         ),
         drawer: const AppDrawer(currentIndex: 4),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _profileHeader(context),
-            const SizedBox(height: 24),
+      body: isLoading
+    ? const Center(child: CircularProgressIndicator())
+    : profile == null
+        ? const Center(child: Text('Failed to load profile'))
+        : SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _profileHeader(context),
+                const SizedBox(height: 24),
 
-            isMobile
-                ? Column(
-                    children: [
-                      _profileInfoCard(),
-                      const SizedBox(height: 16),
-                      _quickActionsCard(),
-                      const SizedBox(height: 16),
-                    ],
-                  )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: _profileInfoCard(),
+                isMobile
+                    ? Column(
+                        children: [
+                          _profileInfoCard(),
+                          const SizedBox(height: 16),
+                          _quickActionsCard(),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(flex: 3, child: _profileInfoCard()),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            flex: 2,
+                            child: _quickActionsCard(),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          children: [
-                            _quickActionsCard(),
-                            const SizedBox(height: 16),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-          ],
-        ),
-      ),
+              ],
+            ),
+          ),
+
     );
   }
 
@@ -120,7 +165,7 @@ class ProfilePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Riya Kumari",
+                  profile!['name'] ?? '-',
                   style: Styles.blueTitleTextStyle(fontSize: 22),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -188,18 +233,24 @@ class ProfilePage extends StatelessWidget {
 
   // ---------------- PROFILE INFO ----------------
   Widget _profileInfoCard() {
-    return _card(
-      title: "Profile Information",
-      child: Column(
-        children: const [
-          _infoRow("Full Name", "Riya Kumari"),
-          _infoRow("Email", "riya.kumari@linfo.listenlights.com"),
-          _infoRow("Role", "User"),
-          _infoRow("Member Since", "January 6, 2026"),
-        ],
-      ),
-    );
-  }
+  return _card(
+    title: "Profile Information",
+    child: Column(
+      children: [
+        _infoRow("Full Name", profile!['name'] ?? '-'),
+        _infoRow("Email", profile!['email'] ?? '-'),
+        _infoRow("Role", profile!['role']?['name'] ?? 'User'),
+        _infoRow(
+          "Member Since",
+          profile!['created_at'] != null
+              ? profile!['created_at'].toString().substring(0, 10)
+              : '-',
+        ),
+      ],
+    ),
+  );
+}
+
 
   // ---------------- QUICK ACTIONS ----------------
   Widget _quickActionsCard() {

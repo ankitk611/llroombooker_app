@@ -1,10 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roombooker/core/constants/url.dart';
 import 'package:roombooker/core/methods/create_booking_api_service.dart';
 import 'package:roombooker/widgets/app_drawer.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
-
+import 'package:http/http.dart' as http;
 import '../../core/constants/create_booking_design.dart';
 import '../../core/methods/create_booking_service.dart';
 import '../../core/models/create_booking_models.dart';
@@ -50,8 +53,47 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
   @override
   void initState() {
     super.initState();
-    _init();
+    fetchRooms();
   }
+
+
+Future<void> fetchRooms() async {
+  try {
+    final response = await http.get(
+      Uri.parse('${Url.baseUrl}/rooms/available'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to fetch rooms');
+    }
+
+    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    final List data = decoded['data'] ?? [];
+
+    final rooms = data.map<Room>((r) {
+      return Room(
+        id: r['id'].toString(),
+        name: r['name'],
+        capacity: r['capacity'] ?? r['max_occupancy'] ?? 0,
+      );
+    }).toList();
+
+    setState(() {
+      _rooms = rooms;
+      _loadingRooms = false;
+    });
+  } catch (e) {
+    print('ROOM FETCH ERROR: $e');
+    setState(() {
+      _rooms = [];
+      _loadingRooms = false;
+    });
+  }
+}
+
 
   @override
   void dispose() {
@@ -62,15 +104,8 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
     super.dispose();
   }
 
-  Future<void> _init() async {
-    setState(() => _loadingRooms = true);
-    final rooms = await widget.service.fetchRooms();
-    if (!mounted) return;
-    setState(() {
-      _rooms = rooms;
-      _loadingRooms = false;
-    });
-  }
+
+
 
   // ---------------------------
   // Helpers
@@ -481,19 +516,7 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                             ),
                             const SizedBox(height: DS.l),
 
-                            TapField(
-                              label: 'Room *',
-                              value: _selectedRoom == null
-                                  ? 'Select a room...'
-                                  : '${_selectedRoom!.name} • ${_selectedRoom!.capacity}',
-                              prefixIcon: const FaIcon(
-                                FontAwesomeIcons.doorOpen,
-                                size: 14,
-                                color: DS.primary,
-                              ),
-                              onTap: _openRoomPicker,
-                            ),
-                            const SizedBox(height: DS.l),
+                            
 
                             Row(
                               children: [
@@ -567,6 +590,20 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
                               ],
                             ),
                             const SizedBox(height: DS.m),
+
+                            TapField(
+                              label: 'Room *',
+                              value: _selectedRoom == null
+                                  ? 'Select a room...'
+                                  : '${_selectedRoom!.name} • ${_selectedRoom!.capacity}',
+                              prefixIcon: const FaIcon(
+                                FontAwesomeIcons.doorOpen,
+                                size: 14,
+                                color: DS.primary,
+                              ),
+                              onTap: _openRoomPicker,
+                            ),
+                            const SizedBox(height: DS.l),
 
                             Align(
                               alignment: Alignment.centerLeft,
