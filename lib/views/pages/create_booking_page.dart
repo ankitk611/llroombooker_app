@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roombooker/core/constants/url.dart';
 import 'package:roombooker/core/methods/create_booking_api_service.dart';
+import 'package:roombooker/core/methods/token_methods.dart';
 import 'package:roombooker/widgets/app_drawer.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
 import 'package:http/http.dart' as http;
@@ -53,17 +54,38 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
   @override
   void initState() {
     super.initState();
-    fetchRooms();
+    _refreshAvailableRooms();
   }
+  String _formatDateTime(DateTime dt) {
+  return dt.toIso8601String().replaceFirst('T', ' ').substring(0, 19);
+}
+
+void _refreshAvailableRooms() {
+  final start = _combine(_selectedDate, _startTime);
+  final end = _combine(_selectedDate, _endTime);
+
+  setState(() => _loadingRooms = true);
+  fetchRooms(startTime: start, endTime: end);
+}
 
 
-Future<void> fetchRooms() async {
+
+Future<void> fetchRooms({
+  required DateTime startTime,
+  required DateTime endTime,
+}) async {
   try {
-    final response = await http.get(
+    final response = await http.post(
       Uri.parse('${Url.baseUrl}/rooms/available'),
       headers: {
         'Content-Type': 'application/json',
+        // add token if required
+        'Authorization': 'Bearer ${await TokenUtils().getBearerToken()}',
       },
+      body: jsonEncode({
+        "start_time": _formatDateTime(startTime),
+        "end_time": _formatDateTime(endTime),
+      }),
     );
 
     if (response.statusCode != 200) {
@@ -93,6 +115,7 @@ Future<void> fetchRooms() async {
     });
   }
 }
+
 
 
   @override
@@ -175,6 +198,7 @@ Future<void> fetchRooms() async {
     );
     if (picked == null) return;
     setState(() => _selectedDate = picked);
+    _refreshAvailableRooms();
   }
 
   Future<void> _pickStartTime() async {
@@ -186,6 +210,7 @@ Future<void> fetchRooms() async {
 
     setState(() {
       _startTime = picked;
+      _refreshAvailableRooms();
 
       final start = _combine(_selectedDate, _startTime);
       final end = _combine(_selectedDate, _endTime);
@@ -203,6 +228,7 @@ Future<void> fetchRooms() async {
     );
     if (picked == null) return;
     setState(() => _endTime = picked);
+    _refreshAvailableRooms();
   }
 
   Future<void> _runInternalSearch(String query) async {
