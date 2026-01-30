@@ -6,10 +6,14 @@ import 'package:roombooker/core/models/booking_db.dart';
 
 class BookingCard extends StatelessWidget {
   final BookingDb booking;
+  final VoidCallback? onReschedule;
+  final VoidCallback? onCancel;
 
   const BookingCard({
     super.key,
     required this.booking,
+     this.onReschedule,
+    this.onCancel,
   });
 
   @override
@@ -120,9 +124,32 @@ class BookingCard extends StatelessWidget {
               ],
             ),
           ),
+          if (booking.isMine)
+  Row(
+    mainAxisAlignment: MainAxisAlignment.end,
+    children: [
+      TextButton.icon(
+        onPressed: onReschedule,
+        icon: const Icon(Icons.edit, size: 18),
+        label: const Text('Reschedule'),
+      ),
+      const SizedBox(width: 8),
+      TextButton.icon(
+        onPressed: onCancel,
+        icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+        label: const Text(
+          'Cancel',
+          style: TextStyle(color: Colors.red),
+        ),
+      ),
+    ],
+  ),
+
         ],
       ),
     );
+
+    
   }
 
   String _formatTimeRange() {

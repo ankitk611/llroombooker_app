@@ -42,6 +42,7 @@ void initState() {
   final end = DateTime.parse(json['end_time']).toLocal();
 
   return BookingDb(
+    id: json['id'],
     title: json['title'],
     room: json['room']['name'],
     organiser: json['user']['name'],
@@ -105,40 +106,46 @@ Future<void> fetchMyBookings() async {
 
 
   // // Reschedule booking method
-  // void _rescheduleBooking(Booking booking) async {
-  //   final parts = booking.date.split('-');
-  //   print(booking.date);
-  //   DateTime? newDate = await showDatePicker(
-  //     context: context,
-  //     firstDate: DateTime(2020),
-  //     lastDate: DateTime(2030),
-  //   );
+   Future<void> _openReschedulePicker(BookingDb booking) async {
+    final now = DateTime.now();
+    // ✅ Ensure initialDate is valid
+  final initialDate = booking.startTime.isBefore(now)
+      ? now
+      : booking.startTime;
 
-  //   if (newDate != null) {
-  //     TimeOfDay? newTime = await showTimePicker(
-  //       context: context,
-  //       initialTime: TimeOfDay.fromDateTime(
-  //         DateTime.parse("${booking.date} ${booking.startTime}"),
-  //       ),
-  //     );
+  final newDate = await showDatePicker(
+    context: context,
+    initialDate: initialDate,
+    firstDate: now,
+    lastDate: now.add(const Duration(days: 365)),
+  );
 
-  //     if (newTime != null) {
-  //       setState(() {
-  //         // Update booking with new date and time
-  //         booking.date = "${newDate.year}-${newDate.month}-${newDate.day}";
-  //         booking.startTime = "${newTime.hour}:${newTime.minute}";
-  //         booking.endTime =
-  //             "${newTime.hour + 1}:${newTime.minute}"; // Keeping 1 hour duration as example
-  //       });
+  if (newDate == null) return;
 
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text("Booking Rescheduled to ${booking.startTime}"),
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
+  // ⏰ CLOCK UI (this is what you wanted)
+  final newStartTime = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.fromDateTime(booking.startTime),
+  );
+
+  if (newStartTime == null) return;
+
+  final newStart = DateTime(
+    newDate.year,
+    newDate.month,
+    newDate.day,
+    newStartTime.hour,
+    newStartTime.minute,
+  );
+
+  final newEnd = newStart.add(const Duration(hours: 1));
+
+  await rescheduleBooking(
+    bookingId: booking.id,
+    newStart: newStart,
+    newEnd: newEnd,
+  );
+  }
 
   // // Cancel booking method
   // void _cancelBooking(Booking booking) {
@@ -172,6 +179,95 @@ Future<void> fetchMyBookings() async {
   //     },
   //   );
   // }
+
+  //Update Booking
+  Future<void> rescheduleBooking({
+  required int bookingId,
+  required DateTime newStart,
+  required DateTime newEnd,
+}) async {
+  try {
+    final token = await TokenUtils().getBearerToken();
+
+    final response = await http.put(
+      Uri.parse('${Url.baseUrl}/bookings/$bookingId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        "start_time": newStart.toIso8601String(),
+        "end_time": newEnd.toIso8601String(),
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      fetchMyBookings(); // 👈 refresh list
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Booking rescheduled')),
+      );
+    } else {
+      throw Exception('Reschedule failed');
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Failed to reschedule booking')),
+    );
+  }
+}
+
+
+  Future<void> deleteBooking(int bookingId) async {
+  try {
+    final token = await TokenUtils().getBearerToken();
+
+    final response = await http.delete(
+      Uri.parse('${Url.baseUrl}/bookings/$bookingId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        allBookings.removeWhere((b) => b.id == bookingId);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Booking cancelled')),
+      );
+    } else {
+      throw Exception('Delete failed');
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Failed to cancel booking')),
+    );
+  }
+}
+
+//confirm dialog
+void confirmDelete(BookingDb booking) {
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Cancel booking'),
+      content: const Text('Are you sure you want to cancel this booking?'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('No')),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            deleteBooking(booking.id);
+          },
+          child: const Text('Yes'),
+        ),
+      ],
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -257,7 +353,10 @@ Future<void> fetchMyBookings() async {
       ),
       const SizedBox(height: 12),
       ...myUpcomingBookings.map(
-        (b) => BookingCard(booking: b),
+        (b) => BookingCard( booking: b,
+  onReschedule: () => _openReschedulePicker(b),
+  onCancel: () => confirmDelete(b),
+  ),
       ),
     ],
   );

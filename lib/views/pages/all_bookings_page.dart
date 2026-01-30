@@ -284,6 +284,7 @@ class _AllBookingsState extends State<AllBookings> {
   final end = DateTime.parse(json['end_time']).toLocal();
 
   return BookingDb(
+    id: json['id'],
     title: json['title'],
     room: json['room']['name'],
     organiser: json['user']['name'],
