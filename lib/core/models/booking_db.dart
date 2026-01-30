@@ -3,6 +3,7 @@ enum BookingFilter { today, last5Days, last10Days, all, next5Days, next10Days }
 
 
 class BookingDb {
+  final int id;
   final String title;
   final String room;
   final String organiser;
@@ -13,6 +14,7 @@ class BookingDb {
   final bool isAttendee;
 
   BookingDb({
+    required this.id,
     required this.title,
     required this.room,
     required this.organiser,
