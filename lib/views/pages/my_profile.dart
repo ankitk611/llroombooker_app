@@ -3,6 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:roombooker/core/constants/values.dart';
+import 'package:roombooker/views/pages/all_bookings_page.dart';
+import 'package:roombooker/views/pages/create_booking_page.dart';
 import 'package:roombooker/widgets/app_drawer.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
 import 'dart:convert';
@@ -246,18 +248,33 @@ class _ProfilePageState extends State<ProfilePage> {
             FontAwesomeIcons.plus,
             "New Booking",
             AppColors.primary,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CreateBookingPage()),
+              );
+            },
           ),
           const SizedBox(height: 12),
           _actionButton(
             FontAwesomeIcons.calendarDay,
             "View Calendar",
             AppColors.success,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AllBookings()),
+              );
+            },
           ),
           const SizedBox(height: 12),
           _actionButton(
             FontAwesomeIcons.key,
             "Change Password",
             AppColors.primary,
+            onPressed: () {
+              // Handle notification button press
+            },
           ),
         ],
       ),
@@ -314,11 +331,16 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _actionButton(IconData icon, String label, Color color) {
+  Widget _actionButton(
+    IconData icon,
+    String label,
+    Color color, {
+    required VoidCallback onPressed,
+  }) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: () {},
+        onPressed: onPressed, // ✅ use the callback
         icon: FaIcon(icon, size: 14),
         label: Text(label),
         style: ElevatedButton.styleFrom(
