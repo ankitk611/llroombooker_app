@@ -12,4 +12,6 @@ class TokenUtils {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', accessToken);
   }
+
+  Future<void> clearToken() async {}
 }

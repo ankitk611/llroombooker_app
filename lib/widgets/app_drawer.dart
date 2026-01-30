@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:roombooker/core/constants/url.dart';
 import 'package:roombooker/core/methods/navigation_method.dart';
+import 'package:roombooker/core/methods/token_methods.dart';
 import 'package:roombooker/views/pages/login_page.dart';
+import 'package:http/http.dart' as http;
 
 class AppDrawer extends StatelessWidget {
   final int currentIndex;
 
-  const AppDrawer({
-    super.key,
-    required this.currentIndex,
-  });
+  const AppDrawer({super.key, required this.currentIndex});
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +23,7 @@ class AppDrawer extends StatelessWidget {
               ),
               child: Row(
                 children: const [
-                  Icon(Icons.meeting_room,
-                      color: Colors.white, size: 36),
+                  Icon(Icons.meeting_room, color: Colors.white, size: 36),
                   SizedBox(width: 12),
                   Text(
                     "Room Booker",
@@ -79,18 +78,31 @@ class AppDrawer extends StatelessWidget {
 
             // Logout
             ListTile(
-              leading:
-                  const Icon(Icons.logout, color: Colors.red),
-              title: const Text(
-                "Logout",
-                style: TextStyle(color: Colors.red),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => const LoginPage(),
-                    ),
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text("Logout", style: TextStyle(color: Colors.red)),
+              onTap: () async {
+                Navigator.pop(context); // close drawer
+
+                try {
+                  final token = await TokenUtils().getBearerToken();
+                  await http.post(
+                    Uri.parse('${Url.baseUrl}/logout'),
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': 'Bearer $token',
+                    },
+                    body: {}
+                  );
+                } catch (_) {}
+
+                await TokenUtils().clearToken();
+
+                if (!context.mounted) return;
+
+                // ✅ Ensure root navigator is used
+                final rootNav = Navigator.of(context, rootNavigator: true);
+                rootNav.pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
                   (route) => false,
                 );
               },
@@ -107,14 +119,12 @@ class AppDrawer extends StatelessWidget {
     required String title,
     required int index,
   }) {
-   var ussian;
-   ussian;
+    var ussian;
+    ussian;
     return ListTile(
       leading: Icon(
         icon,
-        color: currentIndex == index
-            ? Colors.blue
-            : Colors.black,
+        color: currentIndex == index ? Colors.blue : Colors.black,
       ),
       title: Text(
         title,
@@ -122,9 +132,7 @@ class AppDrawer extends StatelessWidget {
           fontWeight: currentIndex == index
               ? FontWeight.bold
               : FontWeight.normal,
-          color: currentIndex == index
-              ? Colors.blue
-              : Colors.black,
+          color: currentIndex == index ? Colors.blue : Colors.black,
         ),
       ),
       selected: currentIndex == index,
