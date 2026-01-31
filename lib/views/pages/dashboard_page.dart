@@ -5,6 +5,7 @@ import 'package:roombooker/core/methods/token_methods.dart';
 import 'package:roombooker/core/models/booking_db.dart';
 import 'package:roombooker/views/pages/create_booking_page.dart';
 import 'package:roombooker/views/pages/my_bookings_page.dart';
+import 'package:roombooker/views/pages/notifications_page.dart';
 import 'package:roombooker/widgets/app_drawer.dart';
 import 'package:roombooker/widgets/booking_card_db.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
@@ -173,12 +174,14 @@ if (selectedFilter == BookingFilter.all) {
     return Scaffold(
       appBar: CustomAppBar(
         appName: 'RoomBooker', // Set the app name here
-        onNotificationsPressed: () async{
-          // Handle notifications
-          final String? token = await TokenUtils().getBearerToken();
-          print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
-          print(token);
-        },
+        onNotificationsPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const NotificationsPage(),
+      ),
+    );
+  },
         onProfilePressed: () {
           // Handle profile
          Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage(),
