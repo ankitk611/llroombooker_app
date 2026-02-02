@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:roombooker/core/constants/url.dart';
+import 'package:roombooker/core/methods/token_methods.dart';
 
 import '../models/create_booking_models.dart';
 import 'create_booking_service.dart';
@@ -15,48 +16,48 @@ class ApiCreateBookingService implements CreateBookingService {
     return _mock.fetchRooms();
   }
 
-  @override
-  @override
-Future<List<Attendee>> searchInternalAttendees(String query) async {
-  final q = query.trim().toLowerCase();
-  if (q.isEmpty) return [];
+  Future<List<Attendee>> fetchAllInternalAttendees() async {
+  final token = await TokenUtils().getBearerToken();
 
-  final response = await http.get(
+  final res = await http.get(
     Uri.parse('${Url.baseUrl}/users'),
     headers: {
       'Content-Type': 'application/json',
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
     },
   );
 
-  if (response.statusCode != 200) {
-    throw Exception('Failed to load users');
-  }
+  final decoded = jsonDecode(res.body);
 
-  final Map<String, dynamic> json =
-      jsonDecode(response.body) as Map<String, dynamic>;
+  // supports: { data: [...] } OR [...]
+  final List<dynamic> list = (decoded is Map<String, dynamic>)
+      ? (decoded["data"] as List<dynamic>? ?? [])
+      : (decoded as List<dynamic>? ?? []);
 
-  final List<dynamic> users = json['data'] as List<dynamic>;
+  return list.map((u) {
+    final m = u as Map<String, dynamic>;
 
-  return users
-      .where((u) {
-        final name = (u['name'] ?? '').toString().toLowerCase();
-        final email = (u['email'] ?? '').toString().toLowerCase();
-        return name.contains(q) || email.contains(q);
-      })
-      .map(
-        (u) => Attendee.internal(
-          name: u['name'] as String,
-          email: u['email'] as String,
-        ),
-      )
-      .take(8)
-      .toList();
+    final name = (m["name"] ?? m["full_name"] ?? m["display_name"] ?? "").toString();
+    final email = (m["email"] ?? m["mail"] ?? "").toString();
+
+    return Attendee.internal(
+      name: name.isEmpty ? "Unknown" : name,
+      email: email,
+    );
+  }).where((a) => a.name.trim().isNotEmpty).toList();
 }
+
 
 
   @override
   Future<void> submitBooking(CreateBookingRequest req) async {
     // implement later
+  }
+  
+  @override
+  Future<List<Attendee>> searchInternalAttendees(String query) {
+    // TODO: implement searchInternalAttendees
+    throw UnimplementedError();
   }
 }
 

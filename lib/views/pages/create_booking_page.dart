@@ -15,7 +15,7 @@ import '../../core/models/create_booking_models.dart';
 import '../../widgets/create_booking_widgets.dart';
 
 class CreateBookingPage extends StatefulWidget {
-   CreateBookingPage({super.key, CreateBookingService? service})
+  CreateBookingPage({super.key, CreateBookingService? service})
     : service = service ?? ApiCreateBookingService();
 
   final CreateBookingService service;
@@ -26,6 +26,9 @@ class CreateBookingPage extends StatefulWidget {
 
 class _CreateBookingPageState extends State<CreateBookingPage> {
   final _formKey = GlobalKey<FormState>();
+
+  List<Attendee> _internalDirectory = const [];
+  bool _loadingInternalDirectory = false;
 
   // Controllers
   final _titleCtrl = TextEditingController();
@@ -55,68 +58,66 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
   void initState() {
     super.initState();
     _refreshAvailableRooms();
+    _loadInternalDirectoryOnce();
   }
+
   String _formatDateTime(DateTime dt) {
-  return dt.toIso8601String().replaceFirst('T', ' ').substring(0, 19);
-}
-
-void _refreshAvailableRooms() {
-  final start = _combine(_selectedDate, _startTime);
-  final end = _combine(_selectedDate, _endTime);
-
-  setState(() => _loadingRooms = true);
-  fetchRooms(startTime: start, endTime: end);
-}
-
-
-
-Future<void> fetchRooms({
-  required DateTime startTime,
-  required DateTime endTime,
-}) async {
-  try {
-    final response = await http.post(
-      Uri.parse('${Url.baseUrl}/rooms/available'),
-      headers: {
-        'Content-Type': 'application/json',
-        // add token if required
-        'Authorization': 'Bearer ${await TokenUtils().getBearerToken()}',
-      },
-      body: jsonEncode({
-        "start_time": _formatDateTime(startTime),
-        "end_time": _formatDateTime(endTime),
-      }),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to fetch rooms');
-    }
-
-    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    final List data = decoded['data'] ?? [];
-
-    final rooms = data.map<Room>((r) {
-      return Room(
-        id: r['id'].toString(),
-        name: r['name'],
-        capacity: r['capacity'] ?? r['max_occupancy'] ?? 0,
-      );
-    }).toList();
-
-    setState(() {
-      _rooms = rooms;
-      _loadingRooms = false;
-    });
-  } catch (e) {
-    print('ROOM FETCH ERROR: $e');
-    setState(() {
-      _rooms = [];
-      _loadingRooms = false;
-    });
+    return dt.toIso8601String().replaceFirst('T', ' ').substring(0, 19);
   }
-}
 
+  void _refreshAvailableRooms() {
+    final start = _combine(_selectedDate, _startTime);
+    final end = _combine(_selectedDate, _endTime);
 
+    setState(() => _loadingRooms = true);
+    fetchRooms(startTime: start, endTime: end);
+  }
+
+  Future<void> fetchRooms({
+    required DateTime startTime,
+    required DateTime endTime,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${Url.baseUrl}/rooms/available'),
+        headers: {
+          'Content-Type': 'application/json',
+          // add token if required
+          'Authorization': 'Bearer ${await TokenUtils().getBearerToken()}',
+        },
+        body: jsonEncode({
+          "start_time": _formatDateTime(startTime),
+          "end_time": _formatDateTime(endTime),
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to fetch rooms');
+      }
+
+      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+      final List data = decoded['data'] ?? [];
+
+      final rooms = data.map<Room>((r) {
+        return Room(
+          id: r['id'].toString(),
+          name: r['name'],
+          capacity: r['capacity'] ?? r['max_occupancy'] ?? 0,
+        );
+      }).toList();
+
+      setState(() {
+        _rooms = rooms;
+        _loadingRooms = false;
+      });
+    } catch (e) {
+      print('ROOM FETCH ERROR: $e');
+      setState(() {
+        _rooms = [];
+        _loadingRooms = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -126,9 +127,6 @@ Future<void> fetchRooms({
     _internalSearchCtrl.dispose();
     super.dispose();
   }
-
-
-
 
   // ---------------------------
   // Helpers
@@ -231,14 +229,25 @@ Future<void> fetchRooms({
     _refreshAvailableRooms();
   }
 
-  Future<void> _runInternalSearch(String query) async {
-    setState(() => _searchingInternal = true);
-    final result = await widget.service.searchInternalAttendees(query);
-    if (!mounted) return;
-    setState(() {
-      _internalSuggestions = result;
-      _searchingInternal = false;
-    });
+  void _runInternalSearch(String query) {
+    final q = query.trim().toLowerCase();
+
+    if (q.isEmpty) {
+      setState(() => _internalSuggestions = const []);
+      return;
+    }
+
+    // Local search from cached directory
+    final results = _internalDirectory
+        .where((a) {
+          final name = a.name.toLowerCase();
+          final email = (a.email ?? "").toLowerCase();
+          return name.contains(q) || email.contains(q);
+        })
+        .take(15)
+        .toList(); // limit suggestions
+
+    setState(() => _internalSuggestions = results);
   }
 
   Future<void> _openRoomPicker() async {
@@ -542,8 +551,6 @@ Future<void> fetchRooms({
                             ),
                             const SizedBox(height: DS.l),
 
-                            
-
                             Row(
                               children: [
                                 Expanded(
@@ -685,7 +692,7 @@ Future<void> fetchRooms({
                                   size: 14,
                                   color: DS.primary,
                                 ),
-                                suffixIcon: _searchingInternal
+                                suffixIcon: _loadingInternalDirectory
                                     ? const Padding(
                                         padding: EdgeInsets.all(12),
                                         child: SizedBox(
@@ -696,15 +703,10 @@ Future<void> fetchRooms({
                                           ),
                                         ),
                                       )
-                                    : IconButton(
-                                        icon: const FaIcon(
-                                          FontAwesomeIcons.arrowRight,
-                                          size: 14,
-                                          color: DS.primary,
-                                        ),
-                                        onPressed: () => _runInternalSearch(
-                                          _internalSearchCtrl.text,
-                                        ),
+                                    : const Icon(
+                                        FontAwesomeIcons.magnifyingGlass,
+                                        size: 14,
+                                        color: DS.primary,
                                       ),
                               ),
                               onChanged: (v) => _runInternalSearch(v),
@@ -893,5 +895,30 @@ Future<void> fetchRooms({
         bottomNavigationBar: AppBottomNavbar(currentIndex: 1),
       ),
     );
+  }
+
+  Future<void> _loadInternalDirectoryOnce() async {
+    setState(() => _loadingInternalDirectory = true);
+    try {
+      // We know service is ApiCreateBookingService here, but keep it safe:
+      final svc = widget.service;
+      if (svc is ApiCreateBookingService) {
+        final all = await svc.fetchAllInternalAttendees();
+        if (!mounted) return;
+        setState(() {
+          _internalDirectory = all;
+          _loadingInternalDirectory = false;
+        });
+      } else {
+        // fallback: if you keep only interface, add a method to interface too
+        setState(() => _loadingInternalDirectory = false);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _internalDirectory = [];
+        _loadingInternalDirectory = false;
+      });
+    }
   }
 }
