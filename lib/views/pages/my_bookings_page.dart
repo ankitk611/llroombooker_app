@@ -47,6 +47,10 @@ void initState() {
     room: json['room']['name'],
     organiser: json['user']['name'],
     attendees: json['number_of_attendees'] ?? 0,
+    attendeeNames: (json['attendees'] as List? ?? [])
+    .map((a) => a['name'].toString())
+    .toList(),
+
     startTime: start,
     endTime: end,
     isMine: true,      // 👈 this is MY bookings

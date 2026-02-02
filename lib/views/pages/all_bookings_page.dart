@@ -219,7 +219,7 @@ class _AllBookingsState extends State<AllBookings> {
                     itemCount: bookings.length,
                     itemBuilder: (context, index) {
                       final booking = bookings[index];
-                      return BookingCard(booking: booking);
+                      return BookingCard(booking: booking, onReschedule: () {  }, onCancel: () {  },);
                     },
                   ),
           ),
@@ -289,6 +289,10 @@ class _AllBookingsState extends State<AllBookings> {
     room: json['room']['name'],
     organiser: json['user']['name'],
     attendees: json['number_of_attendees'] ?? 0,
+    attendeeNames: (json['attendees'] as List? ?? [])
+    .map((a) => a['name'].toString())
+    .toList(),
+
     startTime: start,
     endTime: end,
     isMine: true, // temporary (same as dashboard)

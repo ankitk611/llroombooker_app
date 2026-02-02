@@ -4,159 +4,154 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roombooker/core/constants/values.dart';
 import 'package:roombooker/core/models/booking_db.dart';
 
-class BookingCard extends StatelessWidget {
+class BookingCard extends StatefulWidget {
   final BookingDb booking;
-  final VoidCallback? onReschedule;
-  final VoidCallback? onCancel;
+  final VoidCallback onReschedule;
+  final VoidCallback onCancel;
 
   const BookingCard({
     super.key,
     required this.booking,
-     this.onReschedule,
-    this.onCancel,
+    required this.onReschedule,
+    required this.onCancel,
   });
 
   @override
+  State<BookingCard> createState() => _BookingCardState();
+}
+
+class _BookingCardState extends State<BookingCard>
+    with SingleTickerProviderStateMixin {
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// 🔹 Meeting Title
-          Text(
-            booking.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppText.cardTitle,
-          ),
-
-          const SizedBox(height: 4),
-
-          /// 🔹 Room Name
-          Text(
-            booking.room,
-            style: AppText.secondary,
-          ),
-
-          const SizedBox(height: 12),
-
-          /// 🔹 Organizer & Attendees
-          Row(
-            children: [
-              /// Organizer
-              Expanded(
-                child: Row(
-                  children: [
-                    const FaIcon(
-                      FontAwesomeIcons.userTie,
-                      size: 13,
-                      color: AppColors.primary,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        booking.organiser,
-                        style: AppText.primary,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              /// Attendees
-              Row(
-                children: [
-                  const FaIcon(
-                    FontAwesomeIcons.users,
-                    size: 13,
-                    color: AppColors.success,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    "${booking.attendees} people",
-                    style: AppText.primary,
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          /// 🔹 Time Row
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          setState(() => _expanded = !_expanded);
+        },
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const FaIcon(
-                  FontAwesomeIcons.clock,
-                  size: 13,
-                  color: AppColors.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  _formatTimeRange(),
-                  style: AppText.primary,
-                ),
+                _header(),
+
+                if (_expanded) ...[
+                  const Divider(height: 24),
+
+                  _details(),
+
+                  const SizedBox(height: 12),
+                  _attendees(),
+
+                  const SizedBox(height: 16),
+                  _actions(),
+                ],
               ],
             ),
           ),
-          if (booking.isMine)
-  Row(
-    mainAxisAlignment: MainAxisAlignment.end,
-    children: [
-      TextButton.icon(
-        onPressed: onReschedule,
-        icon: const Icon(Icons.edit, size: 18),
-        label: const Text('Reschedule'),
+        ),
       ),
-      const SizedBox(width: 8),
-      TextButton.icon(
-        onPressed: onCancel,
-        icon: const Icon(Icons.delete, size: 18, color: Colors.red),
-        label: const Text(
-          'Cancel',
-          style: TextStyle(color: Colors.red),
+    );
+  }
+
+  Widget _header() {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.booking.title,
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 4),
+            Text(widget.booking.room,
+                style: TextStyle(color: Colors.grey.shade600)),
+          ],
+        ),
+      ),
+      Icon(
+        _expanded ? Icons.expand_less : Icons.expand_more,
+        color: Colors.grey,
+      ),
+    ],
+  );
+}
+
+Widget _details() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text("Organiser: ${widget.booking.organiser}"),
+      const SizedBox(height: 4),
+      Text(
+        "Time: ${widget.booking.startTime} - ${widget.booking.endTime}",
+      ),
+    ],
+  );
+}
+
+Widget _attendees() {
+  if (widget.booking.attendeeNames.isEmpty) {
+    return const Text(
+      "No attendees",
+      style: TextStyle(color: Colors.grey),
+    );
+  }
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        "Attendees",
+        style: TextStyle(fontWeight: FontWeight.w600),
+      ),
+      const SizedBox(height: 8),
+      ...widget.booking.attendeeNames.map(
+        (name) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            children: [
+              const Icon(Icons.person, size: 16),
+              const SizedBox(width: 6),
+              Text(name),
+            ],
+          ),
         ),
       ),
     ],
-  ),
-
-        ],
-      ),
-    );
-
-    
-  }
-
-  String _formatTimeRange() {
-    String start =
-        "${booking.startTime.hour.toString().padLeft(2, '0')}:${booking.startTime.minute.toString().padLeft(2, '0')}";
-    String end =
-        "${booking.endTime.hour.toString().padLeft(2, '0')}:${booking.endTime.minute.toString().padLeft(2, '0')}";
-    return "$start – $end";
-  }
+  );
 }
+
+Widget _actions() {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.end,
+    children: [
+      TextButton(
+        onPressed: widget.onReschedule,
+        child: const Text("Reschedule"),
+      ),
+      const SizedBox(width: 8),
+      TextButton(
+        onPressed: widget.onCancel,
+        style: TextButton.styleFrom(foregroundColor: Colors.red),
+        child: const Text("Cancel"),
+      ),
+    ],
+  );
+}
+
+    }

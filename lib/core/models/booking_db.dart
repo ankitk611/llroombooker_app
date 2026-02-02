@@ -10,6 +10,7 @@ class BookingDb {
   final DateTime startTime;
   final DateTime endTime;
   final int attendees;
+  final List<String> attendeeNames;
   final bool isMine;
   final bool isAttendee;
 
@@ -21,6 +22,7 @@ class BookingDb {
     required this.startTime,
     required this.endTime,
     required this.attendees,
+    required this.attendeeNames,
     this.isMine = false,
     this.isAttendee = false,
   });
