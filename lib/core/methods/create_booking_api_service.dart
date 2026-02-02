@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:roombooker/core/constants/url.dart';
 import 'package:roombooker/core/methods/token_methods.dart';
@@ -50,10 +51,52 @@ class ApiCreateBookingService implements CreateBookingService {
 
 
   @override
-  Future<void> submitBooking(CreateBookingRequest req) async {
-    // implement later
+Future<void> submitBooking(CreateBookingRequest req) async {
+  final token = await TokenUtils().getBearerToken();
+
+  DateTime _combine(DateTime date, TimeOfDay tod) =>
+      DateTime(date.year, date.month, date.day, tod.hour, tod.minute);
+
+  String _formatDateTime(DateTime dt) {
+    return dt.toIso8601String().replaceFirst('T', ' ').substring(0, 19);
   }
-  
+
+  DateTime startDt = _combine(req.date, req.startTime);
+  DateTime endDt = _combine(req.date, req.endTime);
+
+  // If end time is before/equals start time, treat as next day
+  if (!endDt.isAfter(startDt)) {
+    endDt = endDt.add(const Duration(days: 1));
+  }
+
+  final payload = <String, dynamic>{
+    "title": req.meetingTitle,
+    "description": req.description,
+    "room_id": int.tryParse(req.roomId) ?? req.roomId,
+    "start_time": _formatDateTime(startDt), // "YYYY-MM-DD HH:mm:ss"
+    "end_time": _formatDateTime(endDt),
+    "number_of_attendees": req.numberOfAttendees,
+
+    "attendees": req.attendees.map((a) {
+      // If your Attendee model doesn't have these fields yet,
+      // the "??" defaults will keep API payload valid.
+      return <String, dynamic>{
+        "name": a.name,
+        "email": a.email ?? "",
+      };
+    }).toList(),
+  };
+
+  final res = await http.post(
+    Uri.parse('${Url.baseUrl}/bookings'),
+    headers: {
+      'Content-Type': 'application/json',
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode(payload),
+  );
+}
+
   @override
   Future<List<Attendee>> searchInternalAttendees(String query) {
     // TODO: implement searchInternalAttendees
