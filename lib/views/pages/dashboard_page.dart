@@ -15,6 +15,8 @@ import 'package:roombooker/views/pages/my_profile.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:roombooker/core/constants/url.dart';
+import 'package:roombooker/core/methods/token_methods.dart';
+
 
 //---------FONTS----------
 //---------Dashboard Page----------
@@ -47,7 +49,8 @@ class _DashboardPageState extends State<DashboardPage> {
     @override
   void initState() {
     super.initState();
-    fetchUpcomingBookings(); // ✅ ADD THIS LINE
+    fetchUpcomingBookings();
+    fetchDashboardStats(); // ✅ ADD THIS LINE
   }
 
 
@@ -315,17 +318,76 @@ Widget _actionButton(
 
 
 //----------status bar widget----------
-  Widget _statusBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        StatItem(FontAwesomeIcons.building, "22", "Total\nRooms"),
-        StatItem(FontAwesomeIcons.calendarCheck, "2274", "Total\nBookings"),
-        StatItem(FontAwesomeIcons.clock, upcomingBookings.length.toString(), "My Upcoming\nBookings",),
-        StatItem(FontAwesomeIcons.calendarDay, "12", "Today's\nBookings"),
-      ],
+int totalRooms = 0;
+int totalBookings = 0;
+int myUpcomingBookings = 0;
+int todaysBookings = 0;
+
+bool isLoadingStats = true;
+
+//------fetch dashboard api----
+Future<void> fetchDashboardStats() async {
+  try {
+    final token = await TokenUtils().getBearerToken();
+
+    final response = await http.get(
+      Uri.parse('${Url.baseUrl}/dashboard'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
     );
+
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      final data = decoded['data']?['stats'];
+
+      setState(() {
+        totalRooms = data?['total_rooms'] ?? 0;
+        totalBookings = data?['total_bookings'] ?? 0;
+        myUpcomingBookings = data?['pending_bookings'] ?? 0;
+        todaysBookings = data?['today_bookings'] ?? 0;
+        isLoadingStats = false;
+      });
+    }
+  } catch (e) {
+    debugPrint('Dashboard stats error: $e');
+    setState(() => isLoadingStats = false);
   }
+}
+
+ Widget _statusBar() {
+  if (isLoadingStats) {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    children: [
+      StatItem(
+        FontAwesomeIcons.building,
+        totalRooms.toString(),
+        "Total\nRooms",
+      ),
+      StatItem(
+        FontAwesomeIcons.calendarCheck,
+        totalBookings.toString(),
+        "Total\nBookings",
+      ),
+      StatItem(
+        FontAwesomeIcons.clock,
+        myUpcomingBookings.toString(),
+        "My Upcoming\nBookings",
+      ),
+      StatItem(
+        FontAwesomeIcons.calendarDay,
+        todaysBookings.toString(),
+        "Today's\nBookings",
+      ),
+    ],
+  );
+}
+
 
   //----------upcoming bookings widget----------
 
