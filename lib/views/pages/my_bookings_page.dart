@@ -142,7 +142,31 @@ Future<void> fetchMyBookings() async {
     newStartTime.minute,
   );
 
-  final newEnd = newStart.add(const Duration(hours: 1));
+   // ⏰ Pick END time (NEW)
+  final newEndTime = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.fromDateTime(booking.endTime),
+  );
+
+  if (newEndTime == null) return;
+
+  final newEnd = DateTime(
+    newDate.year,
+    newDate.month,
+    newDate.day,
+    newEndTime.hour,
+    newEndTime.minute,
+  );
+
+  // ✅ Validate duration
+  if (!newEnd.isAfter(newStart)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('End time must be after start time'),
+      ),
+    );
+    return;
+  }
 
   await rescheduleBooking(
     bookingId: booking.id,
@@ -151,38 +175,8 @@ Future<void> fetchMyBookings() async {
   );
   }
 
-  // // Cancel booking method
-  // void _cancelBooking(Booking booking) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         title: Text("Cancel Booking"),
-  //         content: Text("Are you sure you want to cancel this booking?"),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text("No"),
-  //           ),
-  //           TextButton(
-  //             onPressed: () {
-  //               setState(() {
-  //                 allBookings.remove(booking);
-  //               });
-  //               Navigator.of(context).pop();
-  //               ScaffoldMessenger.of(
-  //                 context,
-  //               ).showSnackBar(SnackBar(content: Text("Booking Canceled")));
-  //             },
-  //             child: Text("Yes"),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+ 
+ 
 
   //Update Booking
   Future<void> rescheduleBooking({
