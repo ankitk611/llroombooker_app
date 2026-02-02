@@ -1,60 +1,73 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+ 
+import 'package:roombooker/core/constants/values.dart';
+import 'package:roombooker/core/models/booking_db.dart';
 
+import 'package:roombooker/views/pages/meeting_details_page.dart';
+ 
 class BookingCard extends StatelessWidget {
-  const BookingCard({super.key, required this.booking});
-
-  final booking;
-
+  final BookingDb booking;
+  final VoidCallback? onReschedule;
+  final VoidCallback? onCancel;
+ 
+  const BookingCard({
+    super.key,
+    required this.booking,
+     this.onReschedule,
+    this.onCancel,
+  });
+ 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      padding: const EdgeInsets.all(14),
+     return InkWell(
+  borderRadius: BorderRadius.circular(16),
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MeetingDetailsPage(booking: booking),
+      ),
+    );
+  },
+    child: Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.blue.shade100,
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Meeting Title
+          /// 🔹 Meeting Title
           Text(
-            'Internal Audit',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
+            booking.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppText.cardTitle,
           ),
-
+ 
           const SizedBox(height: 4),
-
-          /// Room Name
+ 
+          /// 🔹 Room Name
           Text(
-            'Meeting Room - 3',
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.blueGrey,
-            ),
+            booking.room,
+            style: AppText.secondary,
           ),
-
+ 
           const SizedBox(height: 12),
-
-          /// Organizer & Attendees
+ 
+          /// 🔹 Organizer & Attendees
           Row(
             children: [
               /// Organizer
@@ -63,75 +76,78 @@ class BookingCard extends StatelessWidget {
                   children: [
                     const FaIcon(
                       FontAwesomeIcons.userTie,
-                      size: 14,
-                      color: Colors.blue,
+                      size: 13,
+                      color: AppColors.primary,
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      'Dviti Shah',
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        color: Colors.black87,
+                    Expanded(
+                      child: Text(
+                        booking.organiser,
+                        style: AppText.primary,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
               ),
-
+ 
               /// Attendees
               Row(
                 children: [
                   const FaIcon(
                     FontAwesomeIcons.users,
-                    size: 14,
-                    color: Colors.green,
+                    size: 13,
+                    color: AppColors.success,
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    '3 people',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.black87,
-                    ),
+                    "${booking.attendees} people",
+                    style: AppText.primary,
                   ),
                 ],
               ),
             ],
           ),
-
+ 
           const SizedBox(height: 12),
-
-          /// Time Row
+ 
+          /// 🔹 Time Row
           Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: 10,
+              horizontal: 12,
               vertical: 8,
             ),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
+              color: AppColors.primaryLight,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               children: [
                 const FaIcon(
                   FontAwesomeIcons.clock,
-                  size: 14,
-                  color: Colors.blue,
+                  size: 13,
+                  color: AppColors.primary,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '10:00 AM - 8:00 PM',
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
+                  _formatTimeRange(),
+                  style: AppText.primary,
                 ),
               ],
             ),
           ),
         ],
       ),
-    );
+    ),
+     );
+   
+  }
+ 
+  String _formatTimeRange() {
+    String start =
+        "${booking.startTime.hour.toString().padLeft(2, '0')}:${booking.startTime.minute.toString().padLeft(2, '0')}";
+    String end =
+        "${booking.endTime.hour.toString().padLeft(2, '0')}:${booking.endTime.minute.toString().padLeft(2, '0')}";
+    return "$start – $end";
   }
 }
