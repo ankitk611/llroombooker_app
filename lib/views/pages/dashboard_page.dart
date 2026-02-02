@@ -7,7 +7,7 @@ import 'package:roombooker/views/pages/create_booking_page.dart';
 import 'package:roombooker/views/pages/my_bookings_page.dart';
 import 'package:roombooker/views/pages/notifications_page.dart';
 import 'package:roombooker/widgets/app_drawer.dart';
-import 'package:roombooker/widgets/booking_card_db.dart';
+import 'package:roombooker/widgets/bookingcard_widget.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
 import 'package:roombooker/widgets/stat_item.dart';
 import 'package:roombooker/widgets/appbar_widget.dart';
@@ -358,7 +358,7 @@ Widget _actionButton(
           style: Styles.blueTitleTextStyle(fontSize: 26),
         ),
         const SizedBox(height: 12),
-        ...upcomingBookings.map((b) => BookingCard(booking: b, onReschedule: () {  }, onCancel: () {  },)),
+        ...upcomingBookings.map((b) => BookingCard(booking: b)),
       ],
     );
   }
