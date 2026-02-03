@@ -229,26 +229,44 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
     _refreshAvailableRooms();
   }
 
-  void _runInternalSearch(String query) {
-    final q = query.trim().toLowerCase();
+  int _internalSearchSeq = 0;
 
-    if (q.isEmpty) {
-      setState(() => _internalSuggestions = const []);
-      return;
-    }
+  Future<void> _runInternalSearch(String query) async {
+  final q = query.trim();
 
-    // Local search from cached directory
-    final results = _internalDirectory
-        .where((a) {
-          final name = a.name.toLowerCase();
-          final email = (a.email ?? "").toLowerCase();
-          return name.contains(q) || email.contains(q);
-        })
-        .take(15)
-        .toList(); // limit suggestions
-
-    setState(() => _internalSuggestions = results);
+  // Start searching only after 3 chars
+  if (q.length < 3) {
+    if (!mounted) return;
+    setState(() {
+      _internalSuggestions = const [];
+      _searchingInternal = false;
+    });
+    return;
   }
+
+  final seq = ++_internalSearchSeq; // prevents old responses overwriting new ones
+  setState(() => _searchingInternal = true);
+
+  try {
+    final result = await widget.service.searchInternalAttendees(q);
+    if (!mounted) return;
+    if (seq != _internalSearchSeq) return;
+
+    setState(() {
+      _internalSuggestions = result;
+      _searchingInternal = false;
+    });
+  } catch (e) {
+    if (!mounted) return;
+    if (seq != _internalSearchSeq) return;
+
+    setState(() {
+      _internalSuggestions = const [];
+      _searchingInternal = false;
+    });
+  }
+}
+
 
   Future<void> _openRoomPicker() async {
     if (_rooms.isEmpty) return;
@@ -903,7 +921,7 @@ class _CreateBookingPageState extends State<CreateBookingPage> {
       // We know service is ApiCreateBookingService here, but keep it safe:
       final svc = widget.service;
       if (svc is ApiCreateBookingService) {
-        final all = await svc.fetchAllInternalAttendees();
+        final all = await svc.searchInternalAttendees("");
         if (!mounted) return;
         setState(() {
           _internalDirectory = all;
