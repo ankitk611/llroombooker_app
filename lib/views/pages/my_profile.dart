@@ -175,45 +175,44 @@ class _ProfilePageState extends State<ProfilePage> {
         /// ACTION BUTTONS
         isMobile
             ? Row(
-                // mainAxisAlignment: MainAxisAlignment.start,
+                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: _headerButton(
-                      icon: Icons.edit,
-                      label: "Edit Profile",
-                      onTap: () {},
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _headerButton(
-                      icon: Icons.key,
-                      label: "Change Password",
+                  // Expanded(
+                  //   child: _headerButton(
+                  //     icon: Icons.edit,
+                  //     label: "Edit Profile",
+                  //     onTap: () {},
+                  //   ),
+                  // ),
+                  // const SizedBox(width: 12),
+                  // Expanded(
+                  //   child: _headerButton(
+                  //     icon: Icons.key,
+                  //     label: "Change Password",
 
-                      onTap: () {},
-                    ),
-                  ),
+                  //     onTap: () {},
+                  //   ),
+                  // ),
                 ],
               )
-            : Align(
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    _headerButton(
-                      icon: Icons.edit,
-                      label: "Edit Profile",
-                      onTap: () {},
-                    ),
-                    const SizedBox(width: 8),
-                    _headerButton(
-                      icon: Icons.key,
-                      label: "Change Password",
-                      onTap: () {},
-                    ),
+                    // _headerButton(
+                    //   icon: Icons.edit,
+                    //   label: "Edit Profile",
+                    //   onTap: () {},
+                    // ),
+                    // const SizedBox(width: 8),
+                    // _headerButton(
+                    //   icon: Icons.key,
+                    //   label: "Change Password",
+                    //   onTap: () {},
+                    // ),
+                    
                   ],
                 ),
-              ),
+              
       ],
     );
   }
@@ -227,12 +226,12 @@ class _ProfilePageState extends State<ProfilePage> {
           _infoRow("Full Name", profile!['name'] ?? '-'),
           _infoRow("Email", profile!['email'] ?? '-'),
           _infoRow("Role", profile!['role']?['name'] ?? 'User'),
-          _infoRow(
-            "Member Since",
-            profile!['created_at'] != null
-                ? profile!['created_at'].toString().substring(0, 10)
-                : '-',
-          ),
+          // _infoRow(
+          //   "Member Since",
+          //   profile!['created_at'] != null
+          //       ? profile!['created_at'].toString().substring(0, 10)
+          //       : '-',
+          // ),
         ],
       ),
     );
