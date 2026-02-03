@@ -49,7 +49,7 @@ class StatItem extends StatelessWidget {
         Text(
           value,
           style: AppText.primary.copyWith(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
           ),
         ),
 

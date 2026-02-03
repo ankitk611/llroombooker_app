@@ -292,18 +292,20 @@ Widget _actionButton(
         onPressed: onPressed,
         icon: Icon(
           icon,
-          size: 16,
-          color: AppColors.primary,
+          size: 18,
+          //color: AppColors.primary,
+          color: AppColors.black,
         ),
         label: Text(
           label,
           style: AppText.primary.copyWith(
-            fontWeight: FontWeight.w600, // 🔹 stronger CTA
+            fontWeight: FontWeight.w700, // 🔹 stronger CTA
             letterSpacing: 0.2,
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryLight,
+          //backgroundColor: AppColors.primaryLight,
+           backgroundColor: AppColors.blueShade2,
           foregroundColor: AppColors.textPrimary,
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 14),
