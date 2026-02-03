@@ -35,7 +35,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   //final url = Uri.parse('${Url.baseUrl}/meetings/$meetingId');
 
   final response = await http.get(
-    Uri.parse('${Url.baseUrl}/bookings/mybookings'),
+    Uri.parse('${Url.baseUrl}/bookings/$meetingId'),
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
@@ -46,7 +46,8 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       throw Exception('Failed to load meeting details');
     }
 
-        final json = jsonDecode(response.body);
+        final decoded = jsonDecode(response.body);
+        final json = decoded['data'] ?? decoded;
 
     return MeetingDetails(
       id: json['id'],
