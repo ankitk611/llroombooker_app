@@ -38,7 +38,7 @@ class _DashboardPageState extends State<DashboardPage> {
   static const Color mainBlue = Color(0xFF3B3870);
 
   //BookingFilter selectedFilter = BookingFilter.all;
-  BookingFilter selectedFilter = BookingFilter.next10Days;
+  BookingFilter selectedFilter = BookingFilter.nextWeek;
 
   final DateTime now = DateTime.now();
 
@@ -87,7 +87,7 @@ Future<void> fetchUpcomingBookings() async {
 
   try {
     final response = await http.get(
-      Uri.parse('${Url.baseUrl}/bookings'),
+      Uri.parse('${Url.baseUrl}/bookings/mybookingsattendee'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${await TokenUtils().getBearerToken()}',
@@ -120,55 +120,64 @@ final List data = decoded is List
   }
 }
 
+//-------DATE HELPER---------
+DateTime _startOfDay(DateTime date) =>
+    DateTime(date.year, date.month, date.day);
+
+DateTime _endOfDay(DateTime date) =>
+    DateTime(date.year, date.month, date.day, 23, 59, 59);
+
+DateTime _mondayOfWeek(DateTime date) =>
+    date.subtract(Duration(days: date.weekday - 1));
+
+DateTime _saturdayOfWeek(DateTime date) =>
+    _mondayOfWeek(date).add(const Duration(days: 5));
 
 //----------Filtered Bookings List----------
 
  List<BookingDb> get upcomingBookings {
   final now = DateTime.now();
- 
 
-  List<BookingDb> filtered = allBookings
-      .where((b) => b.startTime.isAfter(now))
-      .toList();
+  List<BookingDb> filtered =
+      allBookings.where((b) => b.startTime.isAfter(now)).toList();
 
-//apply filter window
+  if (selectedFilter == BookingFilter.today) {
+    final start = _startOfDay(now);
+    final end = _endOfDay(now);
 
-if (selectedFilter == BookingFilter.all) {
-  final now = DateTime.now();
-  return allBookings
-      .where((b) => b.startTime.isAfter(now))
-      .toList()
-    ..sort((a, b) => a.startTime.compareTo(b.startTime));
-}
-
-
-       if (selectedFilter == BookingFilter.today) {
     filtered = filtered.where((b) =>
-        b.startTime.year == now.year &&
-        b.startTime.month == now.month &&
-        b.startTime.day == now.day
+        b.startTime.isAfter(start) &&
+        b.startTime.isBefore(end)
     ).toList();
   }
 
-  if (selectedFilter == BookingFilter.next5Days) {
-    // filtered = filtered.where((b) =>
-    //     b.startTime.isAfter(now.subtract(const Duration(days: 5)))
-    // ).toList();
-    final limit = now.add(const Duration(days: 5));
-    filtered = filtered.where((b) => b.startTime.isBefore(limit)).toList();
+  if (selectedFilter == BookingFilter.thisWeek) {
+    final start = _startOfDay(_mondayOfWeek(now));
+    final end = _endOfDay(_saturdayOfWeek(now));
+
+    filtered = filtered.where((b) =>
+        b.startTime.isAfter(start) &&
+        b.startTime.isBefore(end)
+    ).toList();
   }
 
-  if (selectedFilter == BookingFilter.next10Days) {
-    // filtered = filtered.where((b) =>
-    //     b.startTime.isAfter(now.subtract(const Duration(days: 10)))
-    // ).toList();
-    final limit = now.add(const Duration(days: 10));
-    filtered = filtered.where((b) => b.startTime.isBefore(limit)).toList();
+  if (selectedFilter == BookingFilter.nextWeek) {
+    final nextMonday = _mondayOfWeek(now).add(const Duration(days: 7));
+    final nextSaturday = _saturdayOfWeek(nextMonday);
+
+    final start = _startOfDay(nextMonday);
+    final end = _endOfDay(nextSaturday);
+
+    filtered = filtered.where((b) =>
+        b.startTime.isAfter(start) &&
+        b.startTime.isBefore(end)
+    ).toList();
   }
 
   filtered.sort((a, b) => a.startTime.compareTo(b.startTime));
   return filtered;
 }
+
 
   // filtered.sort((a, b) => b.startTime.compareTo(a.startTime));
   // return filtered.take(5).toList();
@@ -233,7 +242,8 @@ if (selectedFilter == BookingFilter.all) {
                 },
               ),
               IconButton(
-              onPressed: _showFilterSheet, // ✅ BEST & CLEANEST
+              onPressed: _showFilterSheet,
+              // ✅ BEST & CLEANEST
               icon: const Icon(Icons.filter_list),
             ),
   
@@ -448,8 +458,8 @@ Future<void> fetchDashboardStats() async {
               children: [
                 
                 _styledRadio("Today", BookingFilter.today, setModalState),
-                _styledRadio("Next 5 Days", BookingFilter.next5Days, setModalState),
-                _styledRadio("Next 10 Days", BookingFilter.next10Days, setModalState),
+                _styledRadio("This Week", BookingFilter.thisWeek, setModalState),
+                _styledRadio("Next Week", BookingFilter.nextWeek, setModalState),
 
               ],
             ),
@@ -465,7 +475,10 @@ Future<void> fetchDashboardStats() async {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.pop(context);
+                  setState(() {});
+                },
                 child: Text(
                   "Apply",
                   style: AppText.primary.copyWith(color: Colors.white),
@@ -497,7 +510,7 @@ Widget _styledRadio(
       setModalState(() {
         selectedFilter = newValue!;
       });
-      setState(() {}); // updates dashboard bookings
+      //setState(() {}); // updates dashboard bookings
     },
   );
 }
