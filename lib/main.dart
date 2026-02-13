@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:roombooker/core/constants/theme.dart';
+import 'package:roombooker/views/pages/my_profile.dart';
 import 'package:roombooker/views/splash_view.dart';
 
 

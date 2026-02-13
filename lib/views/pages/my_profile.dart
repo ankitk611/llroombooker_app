@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooker/core/constants/values.dart';
 import 'package:roombooker/views/pages/all_bookings_page.dart';
 import 'package:roombooker/views/pages/create_booking_page.dart';
+import 'package:roombooker/views/pages/web_view_page.dart';
 import 'package:roombooker/widgets/app_drawer.dart';
 import 'package:roombooker/widgets/navbar_widget.dart';
 import 'dart:convert';
@@ -128,6 +129,17 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        //create button
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const WebViewPage()),
+            );
+          },
+          child: const Text("Open Web View"),
+        ),
+
         /// TOP ROW: Avatar + Name
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -175,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
         /// ACTION BUTTONS
         isMobile
             ? Row(
-                 mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   // Expanded(
                   //   child: _headerButton(
@@ -197,22 +209,20 @@ class _ProfilePageState extends State<ProfilePage> {
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    // _headerButton(
-                    //   icon: Icons.edit,
-                    //   label: "Edit Profile",
-                    //   onTap: () {},
-                    // ),
-                    // const SizedBox(width: 8),
-                    // _headerButton(
-                    //   icon: Icons.key,
-                    //   label: "Change Password",
-                    //   onTap: () {},
-                    // ),
-                    
-                  ],
-                ),
-              
+                children: [
+                  // _headerButton(
+                  //   icon: Icons.edit,
+                  //   label: "Edit Profile",
+                  //   onTap: () {},
+                  // ),
+                  // const SizedBox(width: 8),
+                  // _headerButton(
+                  //   icon: Icons.key,
+                  //   label: "Change Password",
+                  //   onTap: () {},
+                  // ),
+                ],
+              ),
       ],
     );
   }
